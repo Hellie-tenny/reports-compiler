@@ -1,0 +1,8 @@
+(member) => Number(member.riskLives) === 0 && Number(member.savingsLives) === 0 ?
+      `
+${member.id}. ${member.name}:0
+` :
+      `
+${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskApe).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsApe).toLocaleString()}
+          `
+    
