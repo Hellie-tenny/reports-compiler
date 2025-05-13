@@ -15,7 +15,7 @@ function App() {
 
   // functions and stuff
   function addMember() {
-    let member = { id: members.length + 1, name: newMember, riskLives: null, riskApe: null, savingsLives: null, savingsApe: null };
+    let member = { id: members.length + 1, name: newMember, riskLives: null, riskPremium: null, savingsLives: null, savingsPremium: null };
     let updatedMembers = [...members, member];
     setMembers(updatedMembers);
     localStorage.setItem('members', JSON.stringify(updatedMembers));
@@ -30,9 +30,9 @@ function App() {
     localStorage.setItem('members', JSON.stringify(updatedMembers));
   }
 
-  function updateRiskApe(id, number) {
+  function updateRiskPremium(id, number) {
     const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, riskApe: number } : member
+      member.id === id ? { ...member, riskPremium: number } : member
     )
     setMembers(updatedMembers);
     localStorage.setItem('members', JSON.stringify(updatedMembers));
@@ -46,9 +46,9 @@ function App() {
     localStorage.setItem('members', JSON.stringify(updatedMembers));
   }
 
-  function updateSavingsApe(id, number) {
+  function updateSavingsPremium(id, number) {
     const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, savingsApe: number } : member
+      member.id === id ? { ...member, savingsPremium: number } : member
     )
     setMembers(updatedMembers);
     localStorage.setItem('members', JSON.stringify(updatedMembers));
@@ -60,8 +60,8 @@ function App() {
     const totalSavingsLives = members.reduce((sum, member) => sum + Number(member.savingsLives), 0);
     const totalLives = totalRiskLives + totalSavingsLives;
 
-    const totalSavingsApe = members.reduce((sum, member) => sum + Number(member.riskApe), 0);
-    const totalRiskApe = members.reduce((sum, member) => sum + Number(member.savingsApe), 0);
+    const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
+    const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
     const totalApe = totalSavingsApe + totalRiskApe;
     const riskApeVariance = Number(totalRiskApe - 1430357).toLocaleString();
     const totalLivesVariance = totalLives - 12;
@@ -81,15 +81,15 @@ ${member.id}. ${member.name}:0
 `
         } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
           return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskApe).toLocaleString()}
+${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium * 12).toLocaleString()}
 `
         } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
           return `
-${member.id}. ${member.name}: ${member.savingsLives}s. ${Number(member.savingsApe).toLocaleString()}
+${member.id}. ${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium * 12).toLocaleString()}
 `
         } else {
           return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskApe).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsApe).toLocaleString()}
+${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium * 12).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium * 12).toLocaleString()}
           `
         }
       }
@@ -154,12 +154,138 @@ Regards.
   useEffect(() => {
     const storedMembers = localStorage.getItem('members');
     const storedAppData = localStorage.getItem('appData');
+
     if (storedMembers) {
       try {
         setMembers(JSON.parse(storedMembers));
       } catch (e) {
         console.error('Failed to parse members from localStorage:', e);
       }
+    } else {
+      const initialMembers = [
+        {
+          "id": 1,
+          "name": "Kingsley",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 2,
+          "name": "Winston",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 3,
+          "name": "Cecilia",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 4,
+          "name": "Chikumbutso",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 5,
+          "name": "Yamikani",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 6,
+          "name": "Christopher",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 7,
+          "name": "Hellings",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 8,
+          "name": "Chifundo",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 9,
+          "name": "Rachael",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 10,
+          "name": "Balumbechi",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 11,
+          "name": "Clive",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 12,
+          "name": "Precious",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 13,
+          "name": "Edna",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 14,
+          "name": "Dorothy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        },
+        {
+          "id": 15,
+          "name": "Gladson",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0"
+        }
+      ]
+      setMembers(initialMembers);
+      localStorage.setItem("members", JSON.stringify(initialMembers));
     }
 
     if (storedAppData) {
@@ -184,7 +310,7 @@ Regards.
 
 
   return (
-    <div className='container'>
+    <div className='container bg-gray-200'>
 
       <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center`}>
 
@@ -223,7 +349,7 @@ Regards.
       <div className="w-[70%] mx-auto">
         {
           members.map((member) => (
-            <div className='my-2 bg-gray-200 p-5'>
+            <div className='my-2 p-5  bg-white'>
               <div className='flex-2'>
                 <span className='font-bold'>{member.id}. {member.name}</span>
               </div>
@@ -234,7 +360,7 @@ Regards.
                   </div>
 
                   <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
-                  <span>APE: </span><input type="text" className='bg-white m-1 p-1' placeholder='APE' value={member.riskApe} onChange={(e) => updateRiskApe(member.id, e.target.value)} />
+                  <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
                 </div>
 
                 <div>
@@ -243,7 +369,7 @@ Regards.
                   </div>
 
                   <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
-                  <span>APE: </span><input type="text" className='bg-white m-1 p-1' placeholder='APE' value={member.savingsApe} onChange={(e) => updateSavingsApe(member.id, e.target.value)} />
+                  <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
                 </div>
 
 
