@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MdOutlineRemoveCircleOutline } from "react-icons/md";
 import { HiOutlineXMark } from "react-icons/hi2";
+import lion from "./assets/lion.png";
 import './App.css'
 
 function App() {
@@ -73,7 +74,7 @@ function App() {
     const totalApeVariance = totalApe - 286071400;
 
     const weekAndDate = `Lion Daily Sales Report
-${reportDate} ${weekNo}
+${reportDate} Week ${weekNo}
 
     `;
 
@@ -85,15 +86,15 @@ ${member.id}. ${member.name}:0
 `
         } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
           return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium * 12).toLocaleString()}
+${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}
 `
         } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
           return `
-${member.id}. ${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium * 12).toLocaleString()}
+${member.id}. ${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}
 `
         } else {
           return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium * 12).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium * 12).toLocaleString()}
+${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}
           `
         }
       }
@@ -380,7 +381,7 @@ Regards.
 
       <div className='bg-black w-full p-4'>
         <h2 className='text-white'>
-          <img src="../lion.png" alt="Team Lion Logo" className='w-[3%] inline'/>
+          <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2'/>
           Daily Sales Reporting Tool
         </h2>
       </div>
