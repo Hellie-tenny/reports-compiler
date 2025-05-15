@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { MdOutlineRemoveCircleOutline } from "react-icons/md";
+import { HiOutlineXMark } from "react-icons/hi2";
 import './App.css'
 
 function App() {
@@ -10,7 +12,9 @@ function App() {
   const [finalReport, setFinalReport] = useState("");
   const [reportDate, setReportDate] = useState("");
   const [weekNo, setWeekNo] = useState("");
-  const [appData, setAppData] = useState({})
+  const [appData, setAppData] = useState({});
+  const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
+  const [removeMemberSubject, setRemoveMemberSubject] = useState({});
   // const [sales, setSales] = useState([]);
 
   // functions and stuff
@@ -149,6 +153,22 @@ Regards.
 
     setFinalReport("");
   };
+
+  function removeMember(id, name) {
+    setRemoveMemberDialog(!removeMemberDialog);
+    setRemoveMemberSubject({ id: id, name: name });
+  }
+
+  function comfirmRemoveMember() {
+    const updatedMembers = members.filter((member) => member.id !== removeMemberSubject.id).map((member, index) => (
+      {
+        ...member,
+        id: index + 1
+      }
+    ));
+    setMembers(updatedMembers);
+    localStorage.setItem("members", JSON.stringify(updatedMembers));
+  }
 
   // useEffect to initialize the app
   useEffect(() => {
@@ -310,7 +330,9 @@ Regards.
 
 
   return (
-    <div className='container bg-gray-200'>
+    <div className='container bg-gray-200 h-[100vh] overflow-y-auto'>
+
+
 
       <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center`}>
 
@@ -333,71 +355,104 @@ Regards.
 
       </div>
 
+
+      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${removeMemberDialog ? `flex` : 'hidden'} justify-center items-center`}>
+
+        <div className="bg-white w-[40%] p-4 h-auto">
+          <HiOutlineXMark className='float-right cursor-pointer' onClick={() => setRemoveMemberDialog(false)} />
+          <div className='my-4'>
+            <span>
+              Are you sure you want to remove {removeMemberSubject.name}?
+            </span>
+          </div>
+
+          <div>
+            <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={comfirmRemoveMember}>
+              Comfirm
+            </button>
+          </div>
+
+        </div>
+
+
+      </div>
+
+
       <div className='bg-black w-full p-4'>
         <h2 className='text-white'>
           Daily Sales Reporting Tool
         </h2>
       </div>
 
-      <div className="w-full p-[2rem]">
-        <input type="text" value={reportDate} /> Week NO.<input type="text" placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
-        <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
-          Add Member
-        </button>
+      <div className="members w-full">
+
+        <div className="w-full p-[2rem]">
+          <input type="text" value={reportDate} /> Week NO.<input type="text" placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
+          <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
+            Add Member
+          </button>
+        </div>
+        
       </div>
 
-      <div className="w-[70%] mx-auto">
-        {
-          members.map((member) => (
-            <div className='my-2 p-5  bg-white'>
-              <div className='flex-2'>
-                <span className='font-bold'>{member.id}. {member.name}</span>
-              </div>
-              <div className='p-4 rounded-sm'>
-                <div>
-                  <div>
-                    <span className='font-bold'>Risk: </span>
-                  </div>
 
-                  <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
-                  <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
-                </div>
-
-                <div>
-                  <div>
-                    <span className='font-bold'>Savings: </span>
-                  </div>
-
-                  <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
-                  <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
-                </div>
-
-
-              </div>
-            </div>
-          ))
-        }
-
-        <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
-          onClick={compileReport}
-        >
-          Compile
-        </button>
-
-        <div className="w-full">
-          <pre>
-            {finalReport}
-          </pre>
-
+    <div className="report w-[70%] mx-auto h-[100%]">
           {
-            finalReport === "" ? "" : <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={copyToClipboard}>
-              Copy
-            </button>
+            members.map((member) => (
+              <div className='my-2 p-5  bg-white'>
+                <MdOutlineRemoveCircleOutline
+                  className='float-right cursor-pointer'
+                  onClick={() => removeMember(member.id, member.name)}
+                />
+                <div className='flex-2'>
+                  <span className='font-bold'>{member.id}. {member.name}</span>
+                </div>
+                <div className='p-4 rounded-sm'>
+                  <div>
+                    <div>
+                      <span className='font-bold'>Risk: </span>
+                    </div>
+
+                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
+                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
+                  </div>
+
+                  <div>
+                    <div>
+                      <span className='font-bold'>Savings: </span>
+                    </div>
+
+                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
+                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
+                  </div>
+
+
+                </div>
+              </div>
+            ))
           }
+
+          <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
+            onClick={compileReport}
+          >
+            Compile
+          </button>
+
+          <div className="w-full">
+            <pre>
+              {finalReport}
+            </pre>
+
+            {
+              finalReport === "" ? "" : <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={copyToClipboard}>
+                Copy
+              </button>
+            }
+
+          </div>
 
         </div>
 
-      </div>
 
     </div>
   )
