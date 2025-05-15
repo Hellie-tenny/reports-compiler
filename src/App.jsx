@@ -380,6 +380,7 @@ Regards.
 
       <div className='bg-black w-full p-4'>
         <h2 className='text-white'>
+          <img src="../lion.png" alt="Team Lion Logo" className='w-[3%] inline'/>
           Daily Sales Reporting Tool
         </h2>
       </div>
