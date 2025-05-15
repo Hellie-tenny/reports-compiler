@@ -334,9 +334,9 @@ Regards.
 
 
 
-      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center`}>
+      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center px-20`}>
 
-        <div className="bg-white w-[40%] p-4 h-auto">
+        <div className="bg-white w-full lg:w-[40%] p-4 h-auto">
 
           <div className="flex justify-end w-full pb-5">
             <span className='cursor-pointer' onClick={() => setPopup(!popup)}>
@@ -344,8 +344,8 @@ Regards.
             </span>
           </div>
 
-          <input type="text" placeholder='Member name...' className='w-[90%]' value={newMember} onChange={(e) => setnewMember(e.target.value)} />
-          <button className='bg-black text-white p-1 rounded-sm hover:cursor-pointer w-[10%]'
+          <input type="text" placeholder='Member name...' className='w-[90%] md:block' value={newMember} onChange={(e) => setnewMember(e.target.value)} />
+          <button className='bg-black text-white p-1 rounded-sm hover:cursor-pointer lg:w-[10%]'
             onClick={() => addMember()}>
             Add
           </button>
@@ -387,71 +387,79 @@ Regards.
       <div className="members w-full">
 
         <div className="w-full p-[2rem]">
-          <input type="text" value={reportDate} /> Week NO.<input type="text" placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
+          <input type="text" value={reportDate} /> Week NO. <input type="text" className='w-[10%]' placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
           <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
             Add Member
           </button>
         </div>
-        
+
       </div>
 
 
-    <div className="report w-[70%] mx-auto h-[100%]">
-          {
-            members.map((member) => (
-              <div className='my-2 p-5  bg-white'>
-                <MdOutlineRemoveCircleOutline
-                  className='float-right cursor-pointer'
-                  onClick={() => removeMember(member.id, member.name)}
-                />
-                <div className='flex-2'>
-                  <span className='font-bold'>{member.id}. {member.name}</span>
-                </div>
-                <div className='p-4 rounded-sm'>
-                  <div>
-                    <div>
-                      <span className='font-bold'>Risk: </span>
-                    </div>
-
-                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
-                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
-                  </div>
-
-                  <div>
-                    <div>
-                      <span className='font-bold'>Savings: </span>
-                    </div>
-
-                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
-                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
-                  </div>
-
-
-                </div>
+      <div className="report p-[2rem] lg:w-[70%] mx-auto h-[100%]">
+        {
+          members.map((member) => (
+            <div className='my-2 p-5  bg-white'>
+              <MdOutlineRemoveCircleOutline
+                className='float-right cursor-pointer'
+                onClick={() => removeMember(member.id, member.name)}
+              />
+              <div className='flex-2'>
+                <span className='font-bold'>{member.id}. {member.name}</span>
               </div>
-            ))
+              <div className='p-4 rounded-sm'>
+                <div>
+                  <div>
+                    <span className='font-bold'>Risk: </span>
+                  </div>
+
+                  <div className='w-full grid grid-cols-4 items-center'>
+                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1 w-[40%]' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
+                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1 cols-3' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
+                  </div>
+
+
+                </div>
+
+                <div>
+                  <div>
+                    <span className='font-bold'>Savings: </span>
+                  </div>
+
+                  <div className="w-full grid grid-cols-4 items-center">
+                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
+                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1 cols-3' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
+                  </div>
+
+
+                </div>
+
+
+              </div>
+            </div>
+          ))
+        }
+
+        <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
+          onClick={compileReport}
+        >
+          Compile
+        </button>
+
+        <div className="w-full">
+          <pre>
+            {finalReport}
+          </pre>
+
+          {
+            finalReport === "" ? "" : <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={copyToClipboard}>
+              Copy
+            </button>
           }
 
-          <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
-            onClick={compileReport}
-          >
-            Compile
-          </button>
-
-          <div className="w-full">
-            <pre>
-              {finalReport}
-            </pre>
-
-            {
-              finalReport === "" ? "" : <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={copyToClipboard}>
-                Copy
-              </button>
-            }
-
-          </div>
-
         </div>
+
+      </div>
 
 
     </div>
