@@ -12,7 +12,7 @@ function App() {
   const [members, setMembers] = useState([]);
   const [finalReport, setFinalReport] = useState("");
   const [reportDate, setReportDate] = useState("");
-  const [weekNo, setWeekNo] = useState("");
+  const [weekNo, setWeekNo] = useState(null);
   const [appData, setAppData] = useState({});
   const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
   const [removeMemberSubject, setRemoveMemberSubject] = useState({});
@@ -20,7 +20,7 @@ function App() {
 
   // functions and stuff
   function addMember() {
-    let member = { id: members.length + 1, name: newMember, riskLives: null, riskPremium: null, savingsLives: null, savingsPremium: null };
+    let member = { id: members.length + 1, name: newMember, riskLives: 0, riskPremium: 0, savingsLives: 0, savingsPremium: 0 };
     let updatedMembers = [...members, member];
     setMembers(updatedMembers);
     localStorage.setItem('members', JSON.stringify(updatedMembers));
@@ -169,6 +169,12 @@ Regards.
     ));
     setMembers(updatedMembers);
     localStorage.setItem("members", JSON.stringify(updatedMembers));
+  }
+
+  function getWeekNumber(date = new Date()) {
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+    return Math.ceil((days + startOfYear.getDay() + 1) / 7);
   }
 
   // useEffect to initialize the app
@@ -326,6 +332,8 @@ Regards.
 
     const today = `${day}/${month}/${year}`;
     setReportDate(today)
+    const currentWeek = getWeekNumber();
+    setWeekNo(currentWeek);
 
   }, []);
 
@@ -381,7 +389,7 @@ Regards.
 
       <div className='bg-black w-full p-4'>
         <h2 className='text-white'>
-          <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2'/>
+          <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2' />
           Daily Sales Reporting Tool
         </h2>
       </div>
