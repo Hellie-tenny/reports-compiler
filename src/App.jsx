@@ -65,8 +65,8 @@ function App() {
     const totalSavingsLives = members.reduce((sum, member) => sum + Number(member.savingsLives), 0);
     const totalLives = totalRiskLives + totalSavingsLives;
 
-    const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
-    const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
+    const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
+    const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
     const totalApe = totalSavingsApe + totalRiskApe;
     const riskApeVariance = Number(totalRiskApe - 1430357).toLocaleString();
     const totalLivesVariance = totalLives - 12;
