@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { MdOutlineRemoveCircleOutline } from "react-icons/md";
+import { MdOutlineDeleteForever } from "react-icons/md";
+import { LuListRestart } from "react-icons/lu";
 import { HiOutlineXMark } from "react-icons/hi2";
 import lion from "./assets/lion.png";
 import './App.css'
@@ -175,6 +176,14 @@ Regards.
     const startOfYear = new Date(date.getFullYear(), 0, 1);
     const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
     return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+  }
+
+  function resetSales(id) {
+    const updatedMembers = members.map(member =>
+      member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0} : member
+    )
+    setMembers(updatedMembers);
+    localStorage.setItem('members', JSON.stringify(updatedMembers));
   }
 
   // useEffect to initialize the app
@@ -410,10 +419,21 @@ Regards.
         {
           members.map((member) => (
             <div className='my-2 p-5  bg-white'>
-              <MdOutlineRemoveCircleOutline
+              {/* <MdOutlineRemoveCircleOutline
                 className='float-right cursor-pointer'
                 onClick={() => removeMember(member.id, member.name)}
+              /> */}
+              
+              <MdOutlineDeleteForever
+                className='float-right cursor-pointer text-2xl text-gray-600'
+                onClick={() => removeMember(member.id, member.name)}
               />
+              
+              <LuListRestart 
+                className='float-right text-2xl cursor-pointer text-gray-600'
+                onClick={() => resetSales(member.id)}
+              />
+
               <div className='flex-2'>
                 <span className='font-bold'>{member.id}. {member.name}</span>
               </div>
