@@ -72,7 +72,8 @@ function App() {
     const riskApeVariance = Number(totalRiskApe - 1430357).toLocaleString();
     const totalLivesVariance = totalLives - 12;
     const totalSavingsApeVariance = totalSavingsApe - 1430357;
-    const totalApeVariance = totalApe - 286071400;
+    const totalApeVariance = totalApe - 2860714;
+    // 2,860,714
 
     const weekAndDate = `Lion Daily Sales Report
 ${reportDate} Week ${weekNo}
