@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { LuListRestart } from "react-icons/lu";
 import { HiOutlineXMark } from "react-icons/hi2";
+import { IoIosSettings } from "react-icons/io";
 import lion from "./assets/lion.png";
 import './App.css'
 
@@ -17,6 +18,10 @@ function App() {
   const [appData, setAppData] = useState({});
   const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
   const [removeMemberSubject, setRemoveMemberSubject] = useState({});
+  const [livesBudget, setLivesBudget] = useState(12);
+  const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
+  const [risknApeBudget, setRiskApeBudget] = useState(1430357);
+  const [totalApeBudget, setTotalApeBudget] = useState(2860714)
   // const [sales, setSales] = useState([]);
 
   // functions and stuff
@@ -69,9 +74,9 @@ function App() {
     const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
     const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
     const totalApe = totalSavingsApe + totalRiskApe;
-    const riskApeVariance = Number(totalRiskApe - 1430357).toLocaleString();
-    const totalLivesVariance = totalLives - 12;
-    const totalSavingsApeVariance = totalSavingsApe - 1430357;
+    const riskApeVariance = Number(totalRiskApe - risknApeBudget).toLocaleString();
+    const totalLivesVariance = totalLives - livesBudget;
+    const totalSavingsApeVariance = totalSavingsApe - savingsApeBudget;
     const totalApeVariance = totalApe - 2860714;
     // 2,860,714
 
@@ -397,11 +402,12 @@ Regards.
       </div>
 
 
-      <div className='bg-black w-full p-4'>
+      <div className='bg-black w-full p-4 flex justify-between'>
         <h2 className='text-white'>
           <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2' />
           Daily Sales Reporting Tool
         </h2>
+        <IoIosSettings className='size-10 text-white cursor-pointer' />
       </div>
 
       <div className="members w-full">
