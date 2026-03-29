@@ -1,69 +1,67 @@
-import { useEffect, useState } from 'react'
-import { MdOutlineDeleteForever } from "react-icons/md";
-import { LuListRestart } from "react-icons/lu";
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { HiOutlineXMark } from "react-icons/hi2";
 import { IoIosSettings } from "react-icons/io";
 import lion from "./assets/lion.png";
 import './App.css'
+import Toast from './Components/Toast';
+import MemberDailyReport from './Components/MemberDailyReport';
 
 function App() {
 
   // states and variables
   const [popup, setPopup] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [newMember, setnewMember] = useState("");
   const [members, setMembers] = useState([]);
   const [finalReport, setFinalReport] = useState("");
   const [reportDate, setReportDate] = useState("");
-  const [weekNo, setWeekNo] = useState(null);
+  const [weekNo, setWeekNo] = useState("");
   const [appData, setAppData] = useState({});
   const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
   const [removeMemberSubject, setRemoveMemberSubject] = useState({});
   const [livesBudget, setLivesBudget] = useState(12);
   const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
   const [risknApeBudget, setRiskApeBudget] = useState(1430357);
-  const [totalApeBudget, setTotalApeBudget] = useState(2860714)
+  const [totalApeBudget, setTotalApeBudget] = useState(2860714);
   // const [sales, setSales] = useState([]);
 
+  const saveMembersTimeout = useRef(null);
+  useEffect(() => {
+    if (saveMembersTimeout.current) {
+      clearTimeout(saveMembersTimeout.current);
+    }
+    saveMembersTimeout.current = setTimeout(() => {
+      localStorage.setItem('members', JSON.stringify(members));
+    }, 250);
+
+    return () => {
+      if (saveMembersTimeout.current) {
+        clearTimeout(saveMembersTimeout.current);
+      }
+    };
+  }, [members]);
+
   // functions and stuff
-  function addMember() {
-    let member = { id: members.length + 1, name: newMember, riskLives: 0, riskPremium: 0, savingsLives: 0, savingsPremium: 0 };
-    let updatedMembers = [...members, member];
-    setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
-    console.log(members)
-  }
+  const addMember = useCallback(() => {
+    setMembers((prev) => {
+      const newItem = { id: prev.length + 1, name: newMember, riskLives: 0, riskPremium: 0, savingsLives: 0, savingsPremium: 0 };
+      return [...prev, newItem];
+    });
+    setToastMessage("New Member added!");
+  }, [newMember]);
 
-  function updateRiskLives(id, number) {
-    const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, riskLives: number } : member
-    )
-    setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
-  }
+  const updateMemberField = useCallback((id, field, value) => {
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === id ? { ...member, [field]: value } : member
+      )
+    );
+  }, []);
 
-  function updateRiskPremium(id, number) {
-    const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, riskPremium: number } : member
-    )
-    setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
-  }
-
-  function updateSavingsLives(id, number) {
-    const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, savingsLives: number } : member
-    )
-    setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
-  }
-
-  function updateSavingsPremium(id, number) {
-    const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, savingsPremium: number } : member
-    )
-    setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
-  }
+  const updateRiskLives = useCallback((id, number) => updateMemberField(id, 'riskLives', number), [updateMemberField]);
+  const updateRiskPremium = useCallback((id, number) => updateMemberField(id, 'riskPremium', number), [updateMemberField]);
+  const updateSavingsLives = useCallback((id, number) => updateMemberField(id, 'savingsLives', number), [updateMemberField]);
+  const updateSavingsPremium = useCallback((id, number) => updateMemberField(id, 'savingsPremium', number), [updateMemberField]);
 
   function compileReport() {
 
@@ -165,6 +163,7 @@ Regards.
   function removeMember(id, name) {
     setRemoveMemberDialog(!removeMemberDialog);
     setRemoveMemberSubject({ id: id, name: name });
+    setToastMessage("Member removed!");
   }
 
   function comfirmRemoveMember() {
@@ -175,7 +174,6 @@ Regards.
       }
     ));
     setMembers(updatedMembers);
-    localStorage.setItem("members", JSON.stringify(updatedMembers));
   }
 
   function getWeekNumber(date = new Date()) {
@@ -186,10 +184,9 @@ Regards.
 
   function resetSales(id) {
     const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0} : member
+      member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0 } : member
     )
     setMembers(updatedMembers);
-    localStorage.setItem('members', JSON.stringify(updatedMembers));
   }
 
   // useEffect to initialize the app
@@ -354,9 +351,9 @@ Regards.
 
 
   return (
-    <div className='container bg-gray-200 h-[100vh] overflow-y-auto'>
+    <div className='bg-gray-200 h-[100vh] overflow-y-auto w-screen'>
 
-
+      <Toast toastMessage={toastMessage} />
 
       <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center px-20`}>
 
@@ -413,7 +410,8 @@ Regards.
       <div className="members w-full">
 
         <div className="w-full p-[2rem]">
-          <input type="text" value={reportDate} /> Week NO. <input type="text" className='w-[10%]' placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
+          <input type="text" value={reportDate} readOnly/> 
+          Week NO. <input type="text" className='w-[10%]' placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
           <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
             Add Member
           </button>
@@ -425,55 +423,14 @@ Regards.
       <div className="report p-[2rem] lg:w-[70%] mx-auto h-[100%]">
         {
           members.map((member) => (
-            <div className='my-2 p-5  bg-white'>
-              {/* <MdOutlineRemoveCircleOutline
-                className='float-right cursor-pointer'
-                onClick={() => removeMember(member.id, member.name)}
-              /> */}
-              
-              <MdOutlineDeleteForever
-                className='float-right cursor-pointer text-2xl text-gray-600'
-                onClick={() => removeMember(member.id, member.name)}
-              />
-              
-              <LuListRestart 
-                className='float-right text-2xl cursor-pointer text-gray-600'
-                onClick={() => resetSales(member.id)}
-              />
-
-              <div className='flex-2'>
-                <span className='font-bold'>{member.id}. {member.name}</span>
-              </div>
-              <div className='p-4 rounded-sm'>
-                <div>
-                  <div>
-                    <span className='font-bold'>Risk: </span>
-                  </div>
-
-                  <div className='w-full grid grid-cols-4 items-center'>
-                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1 w-[40%]' placeholder='Lives' value={member.riskLives} onChange={(e) => updateRiskLives(member.id, e.target.value)} />
-                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1 cols-3' placeholder='Premium' value={member.riskPremium} onChange={(e) => updateRiskPremium(member.id, e.target.value)} />
-                  </div>
-
-
-                </div>
-
-                <div>
-                  <div>
-                    <span className='font-bold'>Savings: </span>
-                  </div>
-
-                  <div className="w-full grid grid-cols-4 items-center">
-                    <span>Lives: </span><input type="text" className='bg-white m-1 p-1' placeholder='Lives' value={member.savingsLives} onChange={(e) => updateSavingsLives(member.id, e.target.value)} />
-                    <span>Premium: </span><input type="text" className='bg-white m-1 p-1 cols-3' placeholder='Premium' value={member.savingsPremium} onChange={(e) => updateSavingsPremium(member.id, e.target.value)} />
-                  </div>
-
-
-                </div>
-
-
-              </div>
-            </div>
+            <MemberDailyReport 
+              key={member.id} 
+              member={member} 
+              updateRiskLives={updateRiskLives}
+              updateRiskPremium={updateRiskPremium}
+              updateSavingsLives={updateSavingsLives}
+              updateSavingsPremium={updateSavingsPremium}
+            />
           ))
         }
 
