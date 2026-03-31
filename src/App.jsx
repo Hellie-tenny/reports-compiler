@@ -1,16 +1,19 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { HiOutlineXMark } from "react-icons/hi2";
 import { IoIosSettings } from "react-icons/io";
 import lion from "./assets/lion.png";
 import './App.css'
 import Toast from './Components/Toast';
 import MemberDailyReport from './Components/MemberDailyReport';
+import WeeklyReport from './Components/WeeklyReport';
 
-function App() {
+function Home() {
 
   // states and variables
   const [popup, setPopup] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("info");
   const [newMember, setnewMember] = useState("");
   const [members, setMembers] = useState([]);
   const [finalReport, setFinalReport] = useState("");
@@ -21,8 +24,15 @@ function App() {
   const [removeMemberSubject, setRemoveMemberSubject] = useState({});
   const [livesBudget, setLivesBudget] = useState(12);
   const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(''), 3000);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
   const [risknApeBudget, setRiskApeBudget] = useState(1430357);
   const [totalApeBudget, setTotalApeBudget] = useState(2860714);
+  const [nextMemberId, setNextMemberId] = useState(1);
   // const [sales, setSales] = useState([]);
 
   const saveMembersTimeout = useRef(null);
@@ -42,13 +52,58 @@ function App() {
   }, [members]);
 
   // functions and stuff
+  const defaultWeekly = {
+    Monday: {
+      riskLives: 0,
+      riskAPE: 0,
+      savingsLives: 0,
+      savingsApe: 0
+    },
+    Tuesday: {
+      riskLives: 0,
+      riskAPE: 0,
+      savingsLives: 0,
+      savingsApe: 0
+    },
+    Wednesday: {
+      riskLives: 0,
+      riskAPE: 0,
+      savingsLives: 0,
+      savingsApe: 0
+    },
+    Thurday: {
+      riskLives: 0,
+      riskAPE: 0,
+      savingsLives: 0,
+      savingsApe: 0
+    },
+    Friday: {
+      riskLives: 0,
+      riskAPE: 0,
+      savingsLives: 0,
+      savingsApe: 0
+    }
+  };
+
   const addMember = useCallback(() => {
     setMembers((prev) => {
-      const newItem = { id: prev.length + 1, name: newMember, riskLives: 0, riskPremium: 0, savingsLives: 0, savingsPremium: 0 };
+      const newItem = {
+        id: nextMemberId,
+        name: newMember,
+        riskLives: 0,
+        riskPremium: 0,
+        savingsLives: 0,
+        savingsPremium: 0,
+        weekly: defaultWeekly
+      };
       return [...prev, newItem];
     });
-    setToastMessage("New Member added!");
-  }, [newMember]);
+    setNextMemberId((id) => id + 1);
+    setnewMember("");
+    setPopup(false);
+    setToastType("success");
+    setToastMessage("New Member Added!");
+  }, [newMember, nextMemberId]);
 
   const updateMemberField = useCallback((id, field, value) => {
     setMembers((prev) =>
@@ -160,21 +215,23 @@ Regards.
     setFinalReport("");
   };
 
-  function removeMember(id, name) {
-    setRemoveMemberDialog(!removeMemberDialog);
+  const removeMember = useCallback((id, name) => {
+    setRemoveMemberDialog((prev) => !prev);
     setRemoveMemberSubject({ id: id, name: name });
-    setToastMessage("Member removed!");
-  }
+  }, []);
 
-  function comfirmRemoveMember() {
-    const updatedMembers = members.filter((member) => member.id !== removeMemberSubject.id).map((member, index) => (
-      {
+  const comfirmRemoveMember = useCallback(() => {
+    setMembers((prev) => {
+      const updated = prev.filter((member) => member.id !== removeMemberSubject.id).map((member, index) => ({
         ...member,
         id: index + 1
-      }
-    ));
-    setMembers(updatedMembers);
-  }
+      }));
+      return updated;
+    });
+    setRemoveMemberDialog(false);
+    setToastType("error");
+    setToastMessage("Member removed!");
+  }, [removeMemberSubject.id]);
 
   function getWeekNumber(date = new Date()) {
     const startOfYear = new Date(date.getFullYear(), 0, 1);
@@ -182,21 +239,45 @@ Regards.
     return Math.ceil((days + startOfYear.getDay() + 1) / 7);
   }
 
-  function resetSales(id) {
-    const updatedMembers = members.map(member =>
-      member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0 } : member
-    )
-    setMembers(updatedMembers);
-  }
+  const resetSales = useCallback((id) => {
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0 } : member
+      )
+    );
+  }, []);
+
+  const memberRows = useMemo(() => {
+    return members.map((member) => (
+      <MemberDailyReport
+        key={member.id}
+        member={member}
+        updateRiskLives={updateRiskLives}
+        updateRiskPremium={updateRiskPremium}
+        updateSavingsLives={updateSavingsLives}
+        updateSavingsPremium={updateSavingsPremium}
+        removeMember={removeMember}
+        resetSales={resetSales}
+      />
+    ));
+  }, [members, updateRiskLives, updateRiskPremium, updateSavingsLives, updateSavingsPremium, removeMember, resetSales]);
 
   // useEffect to initialize the app
   useEffect(() => {
     const storedMembers = localStorage.getItem('members');
     const storedAppData = localStorage.getItem('appData');
 
+    const addWeekly = (member) => ({
+      ...member,
+      weekly: member.weekly || defaultWeekly,
+    });
+
     if (storedMembers) {
       try {
-        setMembers(JSON.parse(storedMembers));
+        const parsed = JSON.parse(storedMembers);
+        setMembers(parsed.map(addWeekly));
+        const maxId = parsed.reduce((max, m) => Math.max(max, m.id || 0), 0);
+        setNextMemberId(maxId + 1);
       } catch (e) {
         console.error('Failed to parse members from localStorage:', e);
       }
@@ -323,8 +404,10 @@ Regards.
           "savingsPremium": "0"
         }
       ]
-      setMembers(initialMembers);
-      localStorage.setItem("members", JSON.stringify(initialMembers));
+      const initialMembersWithWeekly = initialMembers.map(addWeekly);
+      setMembers(initialMembersWithWeekly);
+      setNextMemberId(initialMembersWithWeekly.length + 1);
+      localStorage.setItem("members", JSON.stringify(initialMembersWithWeekly));
     }
 
     if (storedAppData) {
@@ -353,9 +436,10 @@ Regards.
   return (
     <div className='bg-gray-200 h-[100vh] overflow-y-auto w-screen'>
 
-      <Toast toastMessage={toastMessage} />
+      {toastMessage && <Toast toastMessage={toastMessage} toastType={toastType} />}
 
       <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center px-20`}>
+
 
         <div className="bg-white w-full lg:w-[40%] p-4 h-auto">
 
@@ -399,18 +483,21 @@ Regards.
       </div>
 
 
-      <div className='bg-black w-full p-4 flex justify-between'>
+      <div className='bg-black w-full p-4 flex items-center justify-between'>
         <h2 className='text-white'>
           <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2' />
           Daily Sales Reporting Tool
         </h2>
-        <IoIosSettings className='size-10 text-white cursor-pointer' />
+        <div className='flex items-center gap-4'>
+          <Link to="/weekly-report" state={{ members }} className='text-white hover:text-gray-300'>Weekly Report</Link>
+          <IoIosSettings className='size-10 text-white cursor-pointer' />
+        </div>
       </div>
 
       <div className="members w-full">
 
         <div className="w-full p-[2rem]">
-          <input type="text" value={reportDate} readOnly/> 
+          <input type="text" value={reportDate} readOnly />
           Week NO. <input type="text" className='w-[10%]' placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
           <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
             Add Member
@@ -421,18 +508,7 @@ Regards.
 
 
       <div className="report p-[2rem] lg:w-[70%] mx-auto h-[100%]">
-        {
-          members.map((member) => (
-            <MemberDailyReport 
-              key={member.id} 
-              member={member} 
-              updateRiskLives={updateRiskLives}
-              updateRiskPremium={updateRiskPremium}
-              updateSavingsLives={updateSavingsLives}
-              updateSavingsPremium={updateSavingsPremium}
-            />
-          ))
-        }
+        {memberRows}
 
         <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
           onClick={compileReport}
@@ -458,6 +534,19 @@ Regards.
 
     </div>
   )
+}
+
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-100">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/weekly-report" element={<WeeklyReport />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
 export default App

@@ -13,12 +13,12 @@ function MemberDailyReport(props) {
 
             <MdOutlineDeleteForever
                 className='float-right cursor-pointer text-2xl text-gray-600'
-                onClick={() => removeMember(props.member.id, member.name)}
+                onClick={() => props.removeMember(props.member.id, props.member.name)}
             />
 
             <LuListRestart
                 className='float-right text-2xl cursor-pointer text-gray-600'
-                onClick={() => resetSales(props.member.id)}
+                onClick={() => props.resetSales(props.member.id)}
             />
 
             <div className='flex-2'>

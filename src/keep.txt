@@ -5,4 +5,55 @@ ${member.id}. ${member.name}:0
       `
 ${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskApe).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsApe).toLocaleString()}
           `
-    
+      
+[
+        {
+          "id": 1,
+          "name": "Kingsley",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          
+          "weekly" {
+
+            "Monday": {
+                  "riskLives": 0,
+                  "riskAPE": 0,
+                  "savingsLives": 0,
+                  "savingsApe": 0
+            },
+            "Tuesday": {
+                  "riskLives": 0,
+                  "riskAPE": 0,
+                  "savingsLives": 0,
+                  "savingsApe": 0
+            },
+            "Wednesday": {
+                  "riskLives": 0,
+                  "riskAPE": 0,
+                  "savingsLives": 0,
+                  "savingsApe": 0
+            },
+            "Thurday": {
+                  "riskLives": 0,
+                  "riskAPE": 0,
+                  "savingsLives": 0,
+                  "savingsApe": 0
+            },
+            "Friday": {
+                  "riskLives": 0,
+                  "riskAPE": 0,
+                  "savingsLives": 0,
+                  "savingsApe": 0
+            }
+
+          }
+        }
+
+        "monday": {
+      "riskLives": 0,
+      "riskAPE": 0,
+      "savingsLives": 0,
+      "savingsApe": 0
+        }
