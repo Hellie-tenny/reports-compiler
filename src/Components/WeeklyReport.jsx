@@ -4,8 +4,96 @@ import { Link, useLocation } from 'react-router-dom';
 export default function WeeklyReport({ members }) {
   const location = useLocation();
   const locationMembers = location.state?.members;
-  const resolvedMembers = members ?? locationMembers ?? [];
+
+  const getStoredMembers = () => {
+    try {
+      const stored = localStorage.getItem('members');
+      if (!stored) return null;
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (err) {
+      console.error('Error reading persisted members', err);
+      return null;
+    }
+  };
+
+  const resolvedMembers = members ?? locationMembers ?? getStoredMembers() ?? [];
   const displayMembers = Array.isArray(resolvedMembers) ? resolvedMembers : [resolvedMembers];
+
+  const [localMembers, setLocalMembers] = React.useState(displayMembers);
+
+  React.useEffect(() => {
+    setLocalMembers(displayMembers);
+  }, [displayMembers]);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('members', JSON.stringify(localMembers));
+    } catch (err) {
+      console.error('Failed to persist weekly changes', err);
+    }
+  }, [localMembers]);
+
+  const updateWeeklyValue = (memberId, day, field, value) => {
+    setLocalMembers((prevMembers) => {
+      const updated = prevMembers.map((member) => {
+        if (member.id !== memberId) return member;
+
+        const weekly = member.weekly || {};
+        const dayValue = weekly[day] || {
+          riskLives: 0,
+          riskAPE: 0,
+          savingsLives: 0,
+          savingsApe: 0,
+        };
+
+        const updatedDayValue = {
+          ...dayValue,
+          [field]: Number(value),
+        };
+
+        return {
+          ...member,
+          weekly: {
+            ...weekly,
+            [day]: updatedDayValue,
+          },
+        };
+      });
+
+      // persist to localStorage if there is existing member data
+      try {
+        const stored = JSON.parse(localStorage.getItem('members') || '[]');
+        if (Array.isArray(stored)) {
+          const storedUpdated = stored.map((member) => {
+            if (member.id !== memberId) return member;
+            const storedWeekly = member.weekly || {};
+            const storedDayVal = storedWeekly[day] || {
+              riskLives: 0,
+              riskAPE: 0,
+              savingsLives: 0,
+              savingsApe: 0,
+            };
+            return {
+              ...member,
+              weekly: {
+                ...storedWeekly,
+                [day]: {
+                  ...storedDayVal,
+                  [field]: Number(value),
+                },
+              },
+            };
+          });
+          localStorage.setItem('members', JSON.stringify(storedUpdated));
+        }
+      } catch (err) {
+        console.error('Failed to persist weekly update', err);
+      }
+
+      return updated;
+    });
+  };
 
   return (
     <div>
@@ -18,26 +106,10 @@ export default function WeeklyReport({ members }) {
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">Weekly Report</h1>
 
-        {displayMembers.length > 0 ? (
-          displayMembers.map((m) => (
+        {localMembers.length > 0 ? (
+          localMembers.map((m) => (
             <div key={m.id} className="my-4 p-5 bg-white rounded shadow-sm">
               <div className="mb-3 text-lg font-bold">{m.id}. {m.name}</div>
-
-              <div className="mb-2 p-3 border rounded">
-                <div className="font-semibold">Risk</div>
-                <div className="flex gap-4">
-                  <div>Lives: {m.riskLives || 0}</div>
-                  <div>Premium: {m.riskPremium || 0}</div>
-                </div>
-              </div>
-
-              <div className="p-3 border rounded">
-                <div className="font-semibold">Savings</div>
-                <div className="flex gap-4">
-                  <div>Lives: {m.savingsLives || 0}</div>
-                  <div>Premium: {m.savingsPremium || 0}</div>
-                </div>
-              </div>
 
               <div className="mt-3 p-3 border rounded bg-gray-50">
                 <div className="font-semibold mb-2">Weekly Breakdown</div>
@@ -55,7 +127,7 @@ export default function WeeklyReport({ members }) {
                               className="border p-1 rounded w-24"
                               type="number"
                               defaultValue={dayValues?.riskLives ?? 0}
-                              readOnly
+                              onChange={(e) => updateWeeklyValue(m.id, day, 'riskLives', e.target.value)}
                             />
                           </label>
                           <label className="flex flex-col text-sm">
@@ -64,7 +136,7 @@ export default function WeeklyReport({ members }) {
                               className="border p-1 rounded w-24"
                               type="number"
                               defaultValue={dayValues?.riskAPE ?? 0}
-                              readOnly
+                              onChange={(e) => updateWeeklyValue(m.id, day, 'riskAPE', e.target.value)}
                             />
                           </label>
                         </div>
@@ -79,7 +151,7 @@ export default function WeeklyReport({ members }) {
                               className="border p-1 rounded w-24"
                               type="number"
                               defaultValue={dayValues?.savingsLives ?? 0}
-                              readOnly
+                              onChange={(e) => updateWeeklyValue(m.id, day, 'savingsLives', e.target.value)}
                             />
                           </label>
                           <label className="flex flex-col text-sm">
@@ -88,7 +160,7 @@ export default function WeeklyReport({ members }) {
                               className="border p-1 rounded w-24"
                               type="number"
                               defaultValue={dayValues?.savingsApe ?? 0}
-                              readOnly
+                              onChange={(e) => updateWeeklyValue(m.id, day, 'savingsApe', e.target.value)}
                             />
                           </label>
                         </div>
