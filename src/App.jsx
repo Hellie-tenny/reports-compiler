@@ -11,6 +11,8 @@ function App() {
   // states and variables
   const [popup, setPopup] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("default");
+  const [toastCounter, setToastCounter] = useState(0);
   const [newMember, setnewMember] = useState("");
   const [members, setMembers] = useState([]);
   const [finalReport, setFinalReport] = useState("");
@@ -42,13 +44,21 @@ function App() {
   }, [members]);
 
   // functions and stuff
+  const showToast = useCallback((message, type = "default") => {
+    setToastMessage(message);
+    setToastType(type);
+    setToastCounter((prev) => prev + 1);
+  }, []);
+
   const addMember = useCallback(() => {
     setMembers((prev) => {
       const newItem = { id: prev.length + 1, name: newMember, riskLives: 0, riskPremium: 0, savingsLives: 0, savingsPremium: 0 };
       return [...prev, newItem];
     });
-    setToastMessage("New Member added!");
-  }, [newMember]);
+    showToast("New Member added!", "success");
+    setPopup(false);
+    setnewMember("");
+  }, [newMember, showToast]);
 
   const updateMemberField = useCallback((id, field, value) => {
     setMembers((prev) =>
@@ -161,9 +171,8 @@ Regards.
   };
 
   function removeMember(id, name) {
-    setRemoveMemberDialog(!removeMemberDialog);
+    setRemoveMemberDialog(true);
     setRemoveMemberSubject({ id: id, name: name });
-    setToastMessage("Member removed!");
   }
 
   function comfirmRemoveMember() {
@@ -174,6 +183,8 @@ Regards.
       }
     ));
     setMembers(updatedMembers);
+    setRemoveMemberDialog(false);
+    showToast("Member removed!");
   }
 
   function getWeekNumber(date = new Date()) {
@@ -185,8 +196,9 @@ Regards.
   function resetSales(id) {
     const updatedMembers = members.map(member =>
       member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0 } : member
-    )
+    );
     setMembers(updatedMembers);
+    showToast("Sales reset!");
   }
 
   // useEffect to initialize the app
@@ -353,7 +365,7 @@ Regards.
   return (
     <div className='bg-gray-200 h-[100vh] overflow-y-auto w-screen'>
 
-      <Toast toastMessage={toastMessage} />
+      <Toast toastMessage={toastMessage} toastType={toastType} toastCounter={toastCounter} />
 
       <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center px-20`}>
 
@@ -430,6 +442,8 @@ Regards.
               updateRiskPremium={updateRiskPremium}
               updateSavingsLives={updateSavingsLives}
               updateSavingsPremium={updateSavingsPremium}
+              removeMember={removeMember}
+              resetSales={resetSales}
             />
           ))
         }
@@ -460,4 +474,4 @@ Regards.
   )
 }
 
-export default App
+export default App;
