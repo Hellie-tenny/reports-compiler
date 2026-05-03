@@ -1,182 +1,130 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 
-export default function WeeklyReport({ members }) {
-  const location = useLocation();
-  const locationMembers = location.state?.members;
+export default function WeeklyReport({ members, member, setMembers }) {
 
-  const getStoredMembers = () => {
-    try {
-      const stored = localStorage.getItem('members');
-      if (!stored) return null;
-      const parsed = JSON.parse(stored);
-      return Array.isArray(parsed) ? parsed : null;
-    } catch (err) {
-      console.error('Error reading persisted members', err);
-      return null;
+  const [updatedMember, setUpdatedMember] = useState([member]);
+  const [riskLives, setRiskLives] = useState(0);
+  const [riskApe, setRiskApe] = useState(0);
+  const [savingsLives, setSavingsLives] = useState(0);
+  const [savingsApe, setSavingsApe] = useState(0);
+
+  const updateRiskLives = (reportDay, newRiskLives) => {
+
+    setRiskLives(newRiskLives);
+
+    const newUpdatedMember = {
+      ...member,
+      weekly: member.weekly.map(d =>
+        d.day === reportDay ? { ...d, riskLives: newRiskLives } : d
+      )
+    };
+
+    setUpdatedMember(newUpdatedMember);
+
+    const updateMemberById = (id) => {
+      return members.map(member => member.id === id ? newUpdatedMember : member);
     }
-  };
 
-  const resolvedMembers = members ?? locationMembers ?? getStoredMembers() ?? [];
-  const displayMembers = Array.isArray(resolvedMembers) ? resolvedMembers : [resolvedMembers];
+    const updatedMembers = updateMemberById(member.id);
+    console.log(updatedMembers);
+    setMembers(updatedMembers);
 
-  const [localMembers, setLocalMembers] = React.useState(displayMembers);
+  }
 
-  React.useEffect(() => {
-    setLocalMembers(displayMembers);
-  }, [displayMembers]);
+  const updateRiskApe = (reportDay, newRiskApe) => {
+    setRiskLives(newRiskApe);
 
-  React.useEffect(() => {
-    try {
-      localStorage.setItem('members', JSON.stringify(localMembers));
-    } catch (err) {
-      console.error('Failed to persist weekly changes', err);
+    const newUpdatedMember = {
+      ...member,
+      weekly: member.weekly.map(d =>
+        d.day === reportDay ? { ...d, riskApe: newRiskApe } : d
+      )
+    };
+
+    setUpdatedMember(newUpdatedMember);
+
+    const updateMemberById = (id) => {
+      return members.map(member => member.id === id ? newUpdatedMember : member);
     }
-  }, [localMembers]);
 
-  const updateWeeklyValue = (memberId, day, field, value) => {
-    setLocalMembers((prevMembers) => {
-      const updated = prevMembers.map((member) => {
-        if (member.id !== memberId) return member;
+    const updatedMembers = updateMemberById(member.id);
+    console.log(updatedMembers);
+    setMembers(updatedMembers);
+  }
 
-        const weekly = member.weekly || {};
-        const dayValue = weekly[day] || {
-          riskLives: 0,
-          riskAPE: 0,
-          savingsLives: 0,
-          savingsApe: 0,
-        };
+  const updateSavingsLives = (reportDay, newSavingsLives) => {
 
-        const updatedDayValue = {
-          ...dayValue,
-          [field]: Number(value),
-        };
+    setSavingsLives(newSavingsLives);
 
-        return {
-          ...member,
-          weekly: {
-            ...weekly,
-            [day]: updatedDayValue,
-          },
-        };
-      });
+    const newUpdatedMember = {
+      ...member,
+      weekly: member.weekly.map(d =>
+        d.day === reportDay ? { ...d, savingsLives: newSavingsLives } : d
+      )
+    };
 
-      // persist to localStorage if there is existing member data
-      try {
-        const stored = JSON.parse(localStorage.getItem('members') || '[]');
-        if (Array.isArray(stored)) {
-          const storedUpdated = stored.map((member) => {
-            if (member.id !== memberId) return member;
-            const storedWeekly = member.weekly || {};
-            const storedDayVal = storedWeekly[day] || {
-              riskLives: 0,
-              riskAPE: 0,
-              savingsLives: 0,
-              savingsApe: 0,
-            };
-            return {
-              ...member,
-              weekly: {
-                ...storedWeekly,
-                [day]: {
-                  ...storedDayVal,
-                  [field]: Number(value),
-                },
-              },
-            };
-          });
-          localStorage.setItem('members', JSON.stringify(storedUpdated));
-        }
-      } catch (err) {
-        console.error('Failed to persist weekly update', err);
-      }
+    setUpdatedMember(newUpdatedMember);
 
-      return updated;
-    });
-  };
+    const updateMemberById = (id) => {
+      return members.map(member => member.id === id ? newUpdatedMember : member);
+    }
+
+    const updatedMembers = updateMemberById(member.id);
+    console.log(updatedMembers);
+    setMembers(updatedMembers);
+
+  }
+
+  const updateSavingsApe = (reportDay, newSavingsApe) => {
+
+    setSavingsApe(newSavingsApe);
+
+    const newUpdatedMember = {
+      ...member,
+      weekly: member.weekly.map(d =>
+        d.day === reportDay ? { ...d, savingsApe: newSavingsApe } : d
+      )
+    };
+
+    setUpdatedMember(newUpdatedMember);
+
+    const updateMemberById = (id) => {
+      return members.map(member => member.id === id ? newUpdatedMember : member);
+    }
+
+    const updatedMembers = updateMemberById(member.id);
+    console.log(updatedMembers);
+    setMembers(updatedMembers);
+
+  }
 
   return (
-    <div>
-      <header className="bg-black text-white p-4 flex items-center">
-        <Link to="/" className="text-white hover:text-gray-300">
-          Daily report
-        </Link>
-      </header>
+    <div className='my-2 p-5  bg-white'>
+      <span className='font-bold text-2xl'>{member.id}. {member?.name}</span>
 
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Weekly Report</h1>
+      <div>
+        <div>
+          {
+            member.weekly.map((day) => (
+              <div className='py-4' key={day.day}>
 
-        {localMembers.length > 0 ? (
-          localMembers.map((m) => (
-            <div key={m.id} className="my-4 p-5 bg-white rounded shadow-sm">
-              <div className="mb-3 text-lg font-bold">{m.id}. {m.name}</div>
+                <span className='font-bold block'>{day.day}</span>
+                <div className=''>
+                  <span className='block font-semibold'>Risk</span>
+                  <span>Lives: </span><input type="text" value={day.riskLives} onChange={(e) => { updateRiskLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.riskApe} onChange={(e) => { updateRiskApe(day.day, e.target.value) }} />
 
-              <div className="mt-3 p-3 border rounded bg-gray-50">
-                <div className="font-semibold mb-2">Weekly Breakdown</div>
-                {m.weekly && Object.keys(m.weekly).length > 0 ? (
-                  Object.entries(m.weekly).map(([day, dayValues]) => (
-                    <div key={day} className="mb-4">
-                      <div className="font-medium mb-2">{day}</div>
+                </div>
+                <div>
+                  <span className='block font-semibold pt-2'>Savings</span>
+                  <span>Lives: </span><input type="text" value={day.savingsLives} onChange={(e) => { updateSavingsLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.savingsApe} onChange={(e) => { updateSavingsApe(day.day, e.target.value) }} />
+                </div>
 
-                      <div className="mb-2">
-                        <div className="font-semibold">Risk</div>
-                        <div className="flex items-end gap-4 mt-1">
-                          <label className="flex flex-col text-sm">
-                            <span>Lives</span>
-                            <input
-                              className="border p-1 rounded w-24"
-                              type="number"
-                              defaultValue={dayValues?.riskLives ?? 0}
-                              onChange={(e) => updateWeeklyValue(m.id, day, 'riskLives', e.target.value)}
-                            />
-                          </label>
-                          <label className="flex flex-col text-sm">
-                            <span>APE</span>
-                            <input
-                              className="border p-1 rounded w-24"
-                              type="number"
-                              defaultValue={dayValues?.riskAPE ?? 0}
-                              onChange={(e) => updateWeeklyValue(m.id, day, 'riskAPE', e.target.value)}
-                            />
-                          </label>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="font-semibold">Savings</div>
-                        <div className="flex items-end gap-4 mt-1">
-                          <label className="flex flex-col text-sm">
-                            <span>Lives</span>
-                            <input
-                              className="border p-1 rounded w-24"
-                              type="number"
-                              defaultValue={dayValues?.savingsLives ?? 0}
-                              onChange={(e) => updateWeeklyValue(m.id, day, 'savingsLives', e.target.value)}
-                            />
-                          </label>
-                          <label className="flex flex-col text-sm">
-                            <span>APE</span>
-                            <input
-                              className="border p-1 rounded w-24"
-                              type="number"
-                              defaultValue={dayValues?.savingsApe ?? 0}
-                              onChange={(e) => updateWeeklyValue(m.id, day, 'savingsApe', e.target.value)}
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-gray-500">No weekly data available.</div>
-                )}
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-600">No member data supplied. Pass a `member` prop to show cards.</p>
-        )}
+            ))
+          }
+        </div>
       </div>
+
     </div>
   );
 }

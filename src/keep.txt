@@ -57,3 +57,121 @@ ${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskApe).toL
       "savingsLives": 0,
       "savingsApe": 0
         }
+
+        {
+    "id": 1,
+    "name": "Kingsley",
+    "riskLives": "0",
+    "riskPremium": "",
+    "savingsLives": "0",
+    "savingsPremium": "0",
+    "weekly": [
+        {
+            "day": "Monday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+        },
+        {
+            "day": "Tuesday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+        },
+        {
+            "day": "Wednesday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+        },
+        {
+            "day": "Thurday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+        },
+        {
+            "day": "Friday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+        }
+    ]
+}
+
+1.Cecilia......................4 lives 742,800 - 4r
+
+2.Christopher................3 lives 1,260,000 - 0r
+
+3.Kingsley.....................2 lives 858,000 - 2r
+
+4.Chifundo ..................4 lives 1,240,800 - 2r
+
+5.Rachel.......................1 life 258,000 - 1r
+
+6.Balumbechi...............6 lives 1,543,200 - 6r
+
+7.Clive..........................3 lives 5,306,400 - 1r
+
+8.Precious.................3 lives 607,200 - 2r
+
+9.Edna........................2 lives 470,400 - 1r
+
+10.Beatrice...................1 life 360,000 - 0r
+
+11.Lisa........................2 lives 198,000 - 2r
+
+12.Ketrina....................3 lives 1,303,200 - 1r
+
+13.Lucy.........................0
+
+14.Joseph......................0
+
+15.Tadala......................0
+
+LION WEEK 14 SALES REPORT
+1.Kingsley................1 Life 1,212 - 1r
+2.Winston................1 Life 112,122 - 0r
+3.Cecilia................2 Lives 2,323 - 2r
+4.Chikumbutso................2 Lives 11,214 - 0r
+5.Yamikani................4 Lives 2,557 - 2r
+6.Christopher................10 Lives 0 - 5r
+7.Hellings................0
+8.Chifundo................0
+9.Rachael................0
+10.Balumbechi................0
+11.Clive................0
+12.Precious................0
+13.Edna................0
+14.Dorothy................0
+15.Gladson................0
+16.This guy................0
+        
+Lives budget : 60
+Achieved: 20
+Risk: 10
+Savings: 10
+Lives Variance: -40
+
+Risk 
+Budget: 4,944,375
+Achieved: 3,767
+Variance: 3,767
+
+Savings
+Budget: 6,043,175
+Achieved: 125,661
+Variance: -5,917,514
+
+Weekly Budget: 10,987,500
+Total APE: 129,428
+Variance:  -10,858,072
+
+Regards...
+        
+        
