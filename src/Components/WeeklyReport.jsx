@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { MdExpandMore, MdExpandLess } from "react-icons/md";
 
 export default function WeeklyReport({ members, member, setMembers }) {
 
@@ -7,6 +8,7 @@ export default function WeeklyReport({ members, member, setMembers }) {
   const [riskApe, setRiskApe] = useState(0);
   const [savingsLives, setSavingsLives] = useState(0);
   const [savingsApe, setSavingsApe] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const updateRiskLives = (reportDay, newRiskLives) => {
 
@@ -100,30 +102,37 @@ export default function WeeklyReport({ members, member, setMembers }) {
 
   return (
     <div className='my-2 p-5  bg-white'>
-      <span className='font-bold text-2xl'>{member.id}. {member?.name}</span>
-
-      <div>
-        <div>
-          {
-            member.weekly.map((day) => (
-              <div className='py-4' key={day.day}>
-
-                <span className='font-bold block'>{day.day}</span>
-                <div className=''>
-                  <span className='block font-semibold'>Risk</span>
-                  <span>Lives: </span><input type="text" value={day.riskLives} onChange={(e) => { updateRiskLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.riskApe} onChange={(e) => { updateRiskApe(day.day, e.target.value) }} />
-
-                </div>
-                <div>
-                  <span className='block font-semibold pt-2'>Savings</span>
-                  <span>Lives: </span><input type="text" value={day.savingsLives} onChange={(e) => { updateSavingsLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.savingsApe} onChange={(e) => { updateSavingsApe(day.day, e.target.value) }} />
-                </div>
-
-              </div>
-            ))
-          }
-        </div>
+      <div className='flex items-center justify-between'>
+        <span className='font-bold text-2xl'>{member.id}. {member?.name}</span>
+        <button onClick={() => setIsExpanded(!isExpanded)} className='text-2xl'>
+          {isExpanded ? <MdExpandLess /> : <MdExpandMore />}
+        </button>
       </div>
+
+      {isExpanded && (
+        <div>
+          <div>
+            {
+              member.weekly.map((day) => (
+                <div className='py-4' key={day.day}>
+
+                  <span className='font-bold block'>{day.day}</span>
+                  <div className=''>
+                    <span className='block font-semibold'>Risk</span>
+                    <span>Lives: </span><input type="text" value={day.riskLives} onChange={(e) => { updateRiskLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.riskApe} onChange={(e) => { updateRiskApe(day.day, e.target.value) }} />
+
+                  </div>
+                  <div>
+                    <span className='block font-semibold pt-2'>Savings</span>
+                    <span>Lives: </span><input type="text" value={day.savingsLives} onChange={(e) => { updateSavingsLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.savingsApe} onChange={(e) => { updateSavingsApe(day.day, e.target.value) }} />
+                  </div>
+
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      )}
 
     </div>
   );

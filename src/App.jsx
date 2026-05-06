@@ -1,14 +1,17 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { Link, Routes, Route } from 'react-router-dom';
+import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import { HiOutlineXMark } from "react-icons/hi2";
 import { IoIosSettings } from "react-icons/io";
 import lion from "./assets/lion.png";
 import './App.css'
 import Toast from './Components/Toast';
 import MemberDailyReport from './Components/MemberDailyReport';
+import Settings from './Components/Settings';
 import WeeklySalesReport from './WeeklySalesReport';
 
 function App() {
+
+  const navigate = useNavigate();
 
   // states and variables
   const [popup, setPopup] = useState(false);
@@ -1111,6 +1114,7 @@ Regards.
 
       <Routes>
         <Route path="/weekly-sales-report" element={<WeeklySalesReport members={members} setMembers={setMembers} />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/" element={
           <>
             <div className='bg-black w-full p-4 flex justify-between'>
@@ -1120,7 +1124,7 @@ Regards.
               </h2>
               <div className='flex items-center'>
                 <Link to="/weekly-sales-report" className='text-white hover:text-gray-300 mr-4'>Weekly Report</Link>
-                <IoIosSettings className='size-10 text-white cursor-pointer' />
+                <IoIosSettings className='size-10 text-white cursor-pointer' onClick={() => navigate('/settings')} />
               </div>
             </div>
 
