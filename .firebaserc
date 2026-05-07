@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "team-lion-reporting-tool"
-  }
+    "default": "team-lion-reporting-tool",
+    "team-lion-reporting-tool": "team-lion-reporting-tool"
+  },
+  "targets": {},
+  "etags": {}
 }

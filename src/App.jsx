@@ -27,9 +27,11 @@ function App() {
   const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
   const [removeMemberSubject, setRemoveMemberSubject] = useState({});
   const [livesBudget, setLivesBudget] = useState(12);
-  const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
-  const [risknApeBudget, setRiskApeBudget] = useState(1430357);
+  // const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
+  // const [risknApeBudget, setRiskApeBudget] = useState(1430357);
   const [totalApeBudget, setTotalApeBudget] = useState(2860714);
+  const [teamSettings, setTeamSettings] = useState({});
+  const [budgets, setBudgets] = useState({});
   // const [sales, setSales] = useState([]);
 
   const saveMembersTimeout = useRef(null);
@@ -124,6 +126,31 @@ function App() {
     );
   }, []);
 
+  // settings function handlers
+  const editTeamName = (newName) => {
+    setTeamSettings({...teamSettings, teamName: newName});
+    const updatedTeamSettings = { ...teamSettings, teamName: newName };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamSettings));
+  }
+
+  const editTeamIcon = (newIcon) => {
+    setTeamSettings({...teamSettings, teamIcon: newIcon});
+    const updatedTeamSettings = { ...teamSettings, teamName: newIcon };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamSettings));
+  }
+
+  const editDailyBudget = (newDailyBudget) => {
+    setBudgets({...budgets, dailyBudget: newDailyBudget});
+    const updatedTeamBudgets = { ...budgets, dailyBudget: newDailyBudget };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editDailyLivesBudget = (newDailyLivesBudget) => {
+    setBudgets({...budgets, dailyLivesBudget: newDailyLivesBudget});
+    const updatedTeamBudgets = { ...budgets, dailyLivesBudget: newDailyLivesBudget };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamBudgets));
+  }
+
   const updateRiskLives = useCallback((id, number) => updateMemberField(id, 'riskLives', number), [updateMemberField]);
   const updateRiskPremium = useCallback((id, number) => updateMemberField(id, 'riskPremium', number), [updateMemberField]);
   const updateSavingsLives = useCallback((id, number) => updateMemberField(id, 'savingsLives', number), [updateMemberField]);
@@ -138,13 +165,15 @@ function App() {
     const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
     const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
     const totalApe = totalSavingsApe + totalRiskApe;
-    const riskApeVariance = Number(totalRiskApe - risknApeBudget).toLocaleString();
-    const totalLivesVariance = totalLives - livesBudget;
-    const totalSavingsApeVariance = totalSavingsApe - savingsApeBudget;
-    const totalApeVariance = totalApe - 2860714;
+    // const riskApeVariance = Number(totalRiskApe - risknApeBudget).toLocaleString();
+    const riskApeVariance = Number(totalRiskApe - budgets.dailyRiskBudget).toLocaleString();
+    // const totalLivesVariance = totalLives - livesBudget;
+    const totalLivesVariance = totalLives - budgets.dailyLivesBudget;
+    const totalSavingsApeVariance = totalSavingsApe - budgets.dailySavingsBudget;
+    const totalApeVariance = totalApe - budgets.dailyBudget;
     // 2,860,714
 
-    const weekAndDate = `Lion Daily Sales Report
+    const weekAndDate = `${teamSettings.teamName} Daily Sales Report
 ${reportDate} Week ${weekNo}
 
     `;
@@ -175,7 +204,7 @@ ${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium)
 
 *LIVES* 
  
-Total lives budget 12
+Total lives budget ${budgets.dailyLivesBudget}
 Total savings ${totalSavingsLives}
 Total Risk ${totalRiskLives}
 Total lives ${totalLives}
@@ -184,24 +213,24 @@ Total lives variance : ${totalLivesVariance > 0 ? "+" : ""}${totalLivesVariance}
 
 *RISK*
 
-Daily risk Budget 1,430,357.00
+Daily risk Budget ${Number(budgets.dailyRiskBudget).toLocaleString()}.00
 Total Risk : ${Number(totalRiskApe).toLocaleString()}
 Variance :  ${riskApeVariance > 0 ? "+" : ""}${riskApeVariance}
 
 *SAVINGS*
 
-Daily SAVINGS budget 1,430,357.00
+Daily SAVINGS budget ${Number(budgets.dailySavingsBudget).toLocaleString()}.00
 Total APE : ${Number(totalSavingsApe).toLocaleString()}
 Variance: ${totalSavingsApeVariance > 0 ? "+" : ""}${Number(totalSavingsApeVariance).toLocaleString()}
 
 *Daily budget*
 
-Daily APE budget 2,860,714.00
+Daily APE budget ${Number(budgets.dailyBudget).toLocaleString()}.00
 Total APE : ${totalApe.toLocaleString()}
 APE variance: ${totalApeVariance > 0 ? "+" : ""}${Number(totalApeVariance).toLocaleString()}
 
 Regards.
-🦁
+${teamSettings.teamIcon}
     `;
 
     const fullReport = weekAndDate + " " + reports + " " + summary;
@@ -261,6 +290,8 @@ Regards.
   useEffect(() => {
     const storedMembers = localStorage.getItem('members');
     const storedAppData = localStorage.getItem('appData');
+    const storedTeamSettings = localStorage.getItem('teamSettings');
+    const storedBudgets = localStorage.getItem('budgets');
 
     if (storedMembers) {
       try {
@@ -1050,6 +1081,37 @@ Regards.
       }
     }
 
+    if (storedTeamSettings) {
+      try {
+        setTeamSettings(JSON.parse(storedTeamSettings));
+      } catch (e) {
+        console.error('Failed to Set Team Settings:', e)
+      }
+    } else {
+      setTeamSettings({
+        'teamName': 'Lion',
+        'teamIcon': '🦁'
+      })
+    }
+
+    if(storedBudgets) {
+      try{
+        setBudgets(JSON.parse(storedBudgets));
+      } catch (e) {
+        console.log('Failed to set Budgets: ', e)
+      }
+      
+    } else {
+      setBudgets({
+        'dailyBudget': 2860714,
+        'dailyRiskBudget': 1430357,
+        'dailySavingsBudget': 1430357,
+        'dailySavingsBudget' : 1430357,
+        'dailyLivesBudget' : 12,
+        'weeklyBudget' : 10987500
+      });
+    }
+
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(now.getDate()).padStart(2, '0');
@@ -1114,7 +1176,7 @@ Regards.
 
       <Routes>
         <Route path="/weekly-sales-report" element={<WeeklySalesReport members={members} setMembers={setMembers} />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings" element={<Settings editTeamName={editTeamName} teamSettings={teamSettings} budgets={budgets} />} />
         <Route path="/" element={
           <>
             <div className='bg-black w-full p-4 flex justify-between'>
