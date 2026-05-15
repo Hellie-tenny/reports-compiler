@@ -12,15 +12,18 @@ export default function Settings(props) {
 
         <div className='py-4'>
           <span className='font-bold block'>Team Settings</span>
-          <span>Team Name: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.teamSettings.teamName} onChange={(e) => props.editTeamName(e.target.value)} placeholder='Edit Team name' /> <br />
-          <span>Team Icon: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.teamSettings.teamIcon} onChange={(e) => props.editTeamIcon(e.target.value)} placeholder='Edit Team Icon' />
+          <span>Team Name: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.teamSettings.teamName ?? ''} onChange={(e) => props.editTeamName(e.target.value)} placeholder='Edit Team name' /> <br />
+          <span>Team Icon: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.teamSettings.teamIcon ?? ''} onChange={(e) => props.editTeamIcon(e.target.value)} placeholder='Edit Team Icon' />
         </div>
 
         <div className='py-4'>
           <span className='font-bold block'>Budget Settings</span>
-          <span>Daily Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.budgets.dailyBudget} onChange={(e) => props.editDailyBudget(e.target.value)} placeholder='Edit Team name' /> <br />
-          <span>Weekly Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' placeholder='Edit Team Weekly Budget' disabled/> <br />
-          <span>Daily Lives Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.budgets.dailyLivesBudget} onChange={(e) => props.editDailyLivesBudget(e.target.value)} placeholder='Edit Daily Lives Budget' />
+          <span>Daily Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.budgets.dailyBudget ?? 0 } onChange={(e) => props.editDailyBudget(e.target.value)} placeholder='Edit Team name' /> <br />
+          <span>Daily Lives Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' value={props.budgets.dailyLivesBudget ?? 0 } onChange={(e) => props.editDailyLivesBudget(e.target.value)} placeholder='Edit Daily Lives Budget' /> <br />          
+          <span>Weekly Lives Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' placeholder='Edit Team Weekly Budget' value={props.budgets.weeklyLivesBudget ?? 0 } onChange={(e) => props.editWeeklyLivesBudget(e.target.value)} /> <br />
+          <span>Weekly Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' placeholder='Edit Team Weekly Budget' value={props.budgets.weeklyBudget ?? 0 } onChange={(e) => props.editWeeklyBudget(e.target.value)} /> <br />
+          <span>Weekly Risk APE Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' placeholder='Edit Team Weekly Budget' value={props.budgets.weeklyRiskApeBudget ?? 0 } onChange={(e) => props.editWeeklyRiskApeBudget(e.target.value)} /> <br />
+          <span>Weekly Savings APE Budget: </span><input type="text" className='border border-gray-300 rounded-sm my-2' placeholder='Edit Team Weekly Budget' value={props.budgets.weeklySavingsApeBudget ?? 0 } onChange={(e) => props.editWeeklySavingsApeBudget(e.target.value)} /> <br />
         </div>
 
       </div>

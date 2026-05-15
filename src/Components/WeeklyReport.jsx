@@ -8,7 +8,7 @@ export default function WeeklyReport({ members, member, setMembers }) {
   const [riskApe, setRiskApe] = useState(0);
   const [savingsLives, setSavingsLives] = useState(0);
   const [savingsApe, setSavingsApe] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const updateRiskLives = (reportDay, newRiskLives) => {
 

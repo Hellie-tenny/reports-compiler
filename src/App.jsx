@@ -136,20 +136,44 @@ function App() {
 
   const editTeamIcon = (newIcon) => {
     setTeamSettings({ ...teamSettings, teamIcon: newIcon });
-    const updatedTeamSettings = { ...teamSettings, teamName: newIcon };
+    const updatedTeamSettings = { ...teamSettings, teamIcon: newIcon };
     localStorage.setItem("teamSettings", JSON.stringify(updatedTeamSettings));
   }
 
   const editDailyBudget = (newDailyBudget) => {
     setBudgets({ ...budgets, dailyBudget: newDailyBudget });
     const updatedTeamBudgets = { ...budgets, dailyBudget: newDailyBudget };
-    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamBudgets));
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
   }
 
   const editDailyLivesBudget = (newDailyLivesBudget) => {
     setBudgets({ ...budgets, dailyLivesBudget: newDailyLivesBudget });
     const updatedTeamBudgets = { ...budgets, dailyLivesBudget: newDailyLivesBudget };
-    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamBudgets));
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyLivesBudget = (newWeeklyLivesBudget) => {
+    setBudgets({ ...budgets, weeklyLivesBudget: newWeeklyLivesBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyLivesBudget: newWeeklyLivesBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyRiskApeBudget = (newWeeklyRiskApeBudget) => {
+    setBudgets({ ...budgets, weeklyRiskApeBudget: newWeeklyRiskApeBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyRiskApeBudget: newWeeklyRiskApeBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklySavingsApeBudget = (newWeeklySavingsApeBudget) => {
+    setBudgets({ ...budgets, weeklySavingsApeBudget: newWeeklySavingsApeBudget });
+    const updatedTeamBudgets = { ...budgets, weeklySavingsApeBudget: newWeeklySavingsApeBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyBudget = (newWeeklyBudget) => {
+    setBudgets({ ...budgets, weeklyBudget: newWeeklyBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyBudget: newWeeklyBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
   }
 
   const updateRiskLives = useCallback((id, number) => updateMemberField(id, 'riskLives', number), [updateMemberField]);
@@ -355,57 +379,6 @@ ${teamSettings.teamIcon}
         },
         {
           "id": 2,
-          "name": "Winston",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 3,
           "name": "Cecilia",
           "riskLives": "0",
           "riskPremium": "0",
@@ -456,109 +429,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 4,
-          "name": "Chikumbutso",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 5,
-          "name": "Yamikani",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 6,
+          "id": 3,
           "name": "Christopher",
           "riskLives": "0",
           "riskPremium": "0",
@@ -609,8 +480,8 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 7,
-          "name": "Hellings",
+          "id": 4,
+          "name": "Lisa",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -660,7 +531,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 8,
+          "id": 5,
           "name": "Chifundo",
           "riskLives": "0",
           "riskPremium": "0",
@@ -711,7 +582,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 9,
+          "id": 6,
           "name": "Rachael",
           "riskLives": "0",
           "riskPremium": "0",
@@ -762,7 +633,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 10,
+          "id": 7,
           "name": "Balumbechi",
           "riskLives": "0",
           "riskPremium": "0",
@@ -813,7 +684,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 11,
+          "id": 8,
           "name": "Clive",
           "riskLives": "0",
           "riskPremium": "0",
@@ -864,7 +735,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 12,
+          "id": 9,
           "name": "Precious",
           "riskLives": "0",
           "riskPremium": "0",
@@ -915,7 +786,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 13,
+          "id": 10,
           "name": "Edna",
           "riskLives": "0",
           "riskPremium": "0",
@@ -966,8 +837,161 @@ ${teamSettings.teamIcon}
           }
         },
         {
+          "id": 11,
+          "name": "Beatrice",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 12,
+          "name": "Lucy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 13,
+          "name": "Katrina",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
           "id": 14,
-          "name": "Dorothy",
+          "name": "Tadala",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -1018,7 +1042,7 @@ ${teamSettings.teamIcon}
         },
         {
           "id": 15,
-          "name": "Gladson",
+          "name": "Joseph",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -1135,7 +1159,10 @@ ${teamSettings.teamIcon}
         'dailyRiskBudget': 1430357,
         'dailySavingsBudget': 1430357,
         'dailyLivesBudget': 12,
-        'weeklyBudget': 10987500
+        'weeklyBudget': 10987500,
+        'weeklyLivesBudget': 60,
+        'weeklyRiskApeBudget': 4944375,
+        'weeklySavingsApeBudget': 4944375
       };
 
       const initialTeamSettings = {
@@ -1203,57 +1230,6 @@ ${teamSettings.teamIcon}
         },
         {
           "id": 2,
-          "name": "Winston",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 3,
           "name": "Cecilia",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1304,109 +1280,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 4,
-          "name": "Chikumbutso",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 5,
-          "name": "Yamikani",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
-            {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            },
-            {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
-            }
-          ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
-          }
-        },
-        {
-          "id": 6,
+          "id": 3,
           "name": "Christopher",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1457,8 +1331,8 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 7,
-          "name": "Hellings",
+          "id": 4,
+          "name": "Lisa",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -1508,7 +1382,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 8,
+          "id": 5,
           "name": "Chifundo",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1559,7 +1433,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 9,
+          "id": 6,
           "name": "Rachael",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1610,7 +1484,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 10,
+          "id": 7,
           "name": "Balumbechi",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1661,7 +1535,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 11,
+          "id": 8,
           "name": "Clive",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1712,7 +1586,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 12,
+          "id": 9,
           "name": "Precious",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1763,7 +1637,7 @@ ${teamSettings.teamIcon}
           }
         },
         {
-          "id": 13,
+          "id": 10,
           "name": "Edna",
           "riskLives": "0",
           "riskPremium": "0",
@@ -1814,8 +1688,161 @@ ${teamSettings.teamIcon}
           }
         },
         {
+          "id": 11,
+          "name": "Beatrice",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 12,
+          "name": "Lucy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 13,
+          "name": "Katrina",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
           "id": 14,
-          "name": "Dorothy",
+          "name": "Tadala",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -1866,7 +1893,7 @@ ${teamSettings.teamIcon}
         },
         {
           "id": 15,
-          "name": "Gladson",
+          "name": "Joseph",
           "riskLives": "0",
           "riskPremium": "0",
           "savingsLives": "0",
@@ -1926,7 +1953,10 @@ ${teamSettings.teamIcon}
         'dailyRiskBudget': 2101573,
         'dailySavingsBudget': 2101573,
         'dailyLivesBudget': 16,
-        'weeklyBudget': 10987500
+        'weeklyBudget': 10987500,
+        'weeklyLivesBudget': 60,
+        'weeklyRiskApeBudget': 4944375,
+        'weeklySavingsApeBudget': 4944375
       };
 
       const initialTeamSettings = {
@@ -2841,8 +2871,26 @@ ${teamSettings.teamIcon}
 
 
       <Routes>
-        <Route path="/weekly-sales-report" element={<WeeklySalesReport members={members} setMembers={setMembers} />} />
-        <Route path="/settings" element={<Settings editTeamName={editTeamName} teamSettings={teamSettings} budgets={budgets} />} />
+        <Route path="/weekly-sales-report" element={
+          <WeeklySalesReport
+            members={members}
+            setMembers={setMembers}
+            weekNo={weekNo}
+            budgets={budgets}
+          />} />
+
+        <Route path="/settings" element={
+          <Settings
+            editTeamName={editTeamName}
+            editDailyBudget={editDailyBudget}
+            editDailyLivesBudget={editDailyLivesBudget}
+            editWeeklyBudget={editWeeklyBudget}
+            editWeeklyLivesBudget={editWeeklyLivesBudget}
+            editWeeklyRiskApeBudget={editWeeklyRiskApeBudget}
+            editWeeklySavingsApeBudget={editWeeklySavingsApeBudget}
+            editTeamIcon={editTeamIcon}
+            teamSettings={teamSettings}
+            budgets={budgets} />} />
         <Route path="/" element={
           <>
             <div className='bg-black w-full p-4 flex justify-between'>
@@ -2867,7 +2915,7 @@ ${teamSettings.teamIcon}
               </div>
 
               <div className='p-[2rem]'>
-                {teamSettings.teamName} <button className='bg-black text-white p-1 rounded-sm cursor-pointer' onClick={() => {setShowTeamCheckModal(true)}}>Change Team</button>
+                {teamSettings.teamName} <button className='bg-black text-white p-1 rounded-sm cursor-pointer' onClick={() => { setShowTeamCheckModal(true) }}>Change Team</button>
               </div>
 
             </div>

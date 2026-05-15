@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import WeeklyReport from './Components/WeeklyReport';
 import { useState } from 'react';
 
-export default function WeeklySalesReport({ members, setMembers }) {
+export default function WeeklySalesReport({ members, setMembers, weekNo, budgets}) {
 
     const [finalWeeklyReport, setFinalWeeklyReport] = useState("");
 
@@ -72,12 +72,12 @@ export default function WeeklySalesReport({ members, setMembers }) {
 
         const totalLives = totalRiskLives + totalSavingsLives;
         const totalApe = totalRiskApe + totalSavingsApe;
-        const totalLivesVariance = Number(totalLives) - 60;
-        const totalRiskApeVariance = totalRiskApe - 4944375;
-        const totalSavingsApeVariance = totalSavingsApe - 6043175;
+        const totalLivesVariance = Number(totalLives) - budgets.weeklyLivesBudget;
+        const totalRiskApeVariance = Number(totalRiskApe) - Number(budgets.weeklyRiskApeBudget);
+        const totalSavingsApeVariance = totalSavingsApe - Number(budgets.weeklySavingsApeBudget);
         const totalApeVariance = totalApe - 10987500;
 
-        const intro = `LION WEEK 14 SALES REPORT`+"\n";
+        const intro = `LION WEEK ${weekNo} SALES REPORT`+"\n";
 
         const membersReports = updatedMembers.map((member) => {
             if(Number(member.total.totalRiskLives)+Number(member.total.totalSavingsLives) === 0){
@@ -97,23 +97,23 @@ export default function WeeklySalesReport({ members, setMembers }) {
 
         const summary = `
         
-Lives budget : 60
+Lives budget : ${budgets.weeklyLivesBudget}
 Achieved: ${totalLives}
 Risk: ${totalRiskLives}
 Savings: ${totalSavingsLives}
 Lives Variance: ${totalLivesVariance > 0 ? "+" + totalLivesVariance : totalLivesVariance}
 
 Risk 
-Budget: 4,944,375
+Budget: ${Number(budgets.weeklyRiskApeBudget).toLocaleString()}
 Achieved: ${Number(totalRiskApe).toLocaleString()}
-Variance: ${totalRiskApeVariance > 0 ? "+" + Number(totalRiskApe).toLocaleString() : Number(totalRiskApe).toLocaleString()}
+Variance: ${totalRiskApeVariance > 0 ? "+" + Number(totalRiskApe).toLocaleString() : Number(totalRiskApeVariance).toLocaleString()}
 
 Savings
-Budget: 6,043,175
+Budget: ${Number(budgets.weeklySavingsApeBudget).toLocaleString()}
 Achieved: ${Number(totalSavingsApe).toLocaleString()}
 Variance: ${totalSavingsApeVariance > 0 ? "+" + Number(totalSavingsApeVariance).toLocaleString() : Number(totalSavingsApeVariance).toLocaleString()}
 
-Weekly Budget: 10,987,500
+Weekly Budget: ${Number(budgets.weeklyBudget).toLocaleString()}
 Total APE: ${Number(totalApe).toLocaleString()}
 Variance:  ${totalApeVariance > 0 ? "+" + Number(totalApeVariance).toLocaleString() : Number(totalApeVariance).toLocaleString()}
 
