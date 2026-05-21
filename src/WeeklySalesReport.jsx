@@ -52,19 +52,19 @@ export default function WeeklySalesReport({ members, setMembers, weekNo, budgets
 
             0);
 
-        const totalRiskApe = members.reduce((acc, member) => {
+        const totalRiskApe = updatedMembers.reduce((acc, member) => {
             return acc += Number(member.total.totalRiskApe);
         },
 
             0);
 
-        const totalSavingsLives = members.reduce((acc, member) => {
+        const totalSavingsLives = updatedMembers.reduce((acc, member) => {
             return acc += Number(member.total.totalSavingsLives);
         },
 
             0);
 
-        const totalSavingsApe = members.reduce((acc, member) => {
+        const totalSavingsApe = updatedMembers.reduce((acc, member) => {
             return acc += Number(member.total.totalSavingsApe);
         },
 
