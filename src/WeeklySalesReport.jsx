@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import WeeklyReport from './Components/WeeklyReport';
 import { useState } from 'react';
 
-export default function WeeklySalesReport({ members, setMembers, weekNo, budgets}) {
+export default function WeeklySalesReport({ members, setMembers, weekNo, budgets, teamSettings}) {
 
     const [finalWeeklyReport, setFinalWeeklyReport] = useState("");
 
@@ -71,25 +71,26 @@ export default function WeeklySalesReport({ members, setMembers, weekNo, budgets
             0);
 
         const totalLives = totalRiskLives + totalSavingsLives;
-        const totalApe = totalRiskApe + totalSavingsApe;
+        const totalApe = Number(totalRiskApe + totalSavingsApe)*12;
         const totalLivesVariance = Number(totalLives) - budgets.weeklyLivesBudget;
-        const totalRiskApeVariance = Number(totalRiskApe) - Number(budgets.weeklyRiskApeBudget);
-        const totalSavingsApeVariance = totalSavingsApe - Number(budgets.weeklySavingsApeBudget);
-        const totalApeVariance = totalApe - 10987500;
+        const totalRiskApeVariance = Number(totalRiskApe)*12 - Number(budgets.weeklyRiskApeBudget);
+        const totalSavingsApeVariance = Number(totalSavingsApe)*12 - Number(budgets.weeklySavingsApeBudget);
+        const totalApeVariance = totalApe - Number(budgets.weeklyBudget);
+        // const totalApeVariance = totalApe - 10987500;
 
-        const intro = `LION WEEK ${weekNo} SALES REPORT`+"\n";
+        const intro = `${teamSettings.teamName} WEEK ${weekNo} SALES REPORT`+"\n";
 
         const membersReports = updatedMembers.map((member) => {
             if(Number(member.total.totalRiskLives)+Number(member.total.totalSavingsLives) === 0){
                 return `${member.id}.${member.name}................0`;
             } else if(Number(member.total.totalSavingsLives) === 1 && Number(member.total.totalRiskLives) === 0) {
-                return `${member.id}.${member.name}................${member.total.totalSavingsLives} Life ${Number(member.total.totalSavingsApe).toLocaleString()} - 0r`;
+                return `${member.id}.${member.name}................${member.total.totalSavingsLives} Life ${Number(Number(member.total.totalSavingsApe)*12).toLocaleString()} - 0r`;
             } else if(Number(member.total.totalRiskLives) === 1 && Number(member.total.totalSavingsLives) === 0){
-                return `${member.id}.${member.name}................${member.total.totalRiskLives} Life ${Number(member.total.totalRiskApe).toLocaleString()} - ${member.total.totalRiskLives}r`;
+                return `${member.id}.${member.name}................${member.total.totalRiskLives} Life ${Number(Number(member.total.totalRiskApe)*12).toLocaleString()} - ${member.total.totalRiskLives}r`;
             } else if(Number(member.total.totalSavingsLives) > 1 && Number(member.total.totalRiskLives) === 0) {
-                return `${member.id}.${member.name}................${member.total.totalSavingsLives} Lives ${Number(member.total.totalSavingsApe).toLocaleString()} - ${member.total.totalRiskLives}r`;
+                return `${member.id}.${member.name}................${member.total.totalSavingsLives} Lives ${(Number(member.total.totalSavingsApe)*12).toLocaleString()} - ${member.total.totalRiskLives}r`;
             } else {
-                return `${member.id}.${member.name}................${Number(member.total.totalSavingsLives)+Number(member.total.totalRiskLives)} Lives ${Number(member.total.totalSavingsApe+member.total.totalRiskApe).toLocaleString()} - ${member.total.totalRiskLives}r`;
+                return `${member.id}.${member.name}................${Number(member.total.totalSavingsLives)+Number(member.total.totalRiskLives)} Lives ${Number((member.total.totalSavingsApe+member.total.totalRiskApe)*12).toLocaleString()} - ${member.total.totalRiskLives}r`;
             }
         }).join("\n");
 
@@ -105,12 +106,12 @@ Lives Variance: ${totalLivesVariance > 0 ? "+" + totalLivesVariance : totalLives
 
 Risk 
 Budget: ${Number(budgets.weeklyRiskApeBudget).toLocaleString()}
-Achieved: ${Number(totalRiskApe).toLocaleString()}
+Achieved: ${(Number(totalRiskApe)*12).toLocaleString()}
 Variance: ${totalRiskApeVariance > 0 ? "+" + Number(totalRiskApe).toLocaleString() : Number(totalRiskApeVariance).toLocaleString()}
 
 Savings
 Budget: ${Number(budgets.weeklySavingsApeBudget).toLocaleString()}
-Achieved: ${Number(totalSavingsApe).toLocaleString()}
+Achieved: ${(Number(totalSavingsApe)*12).toLocaleString()}
 Variance: ${totalSavingsApeVariance > 0 ? "+" + Number(totalSavingsApeVariance).toLocaleString() : Number(totalSavingsApeVariance).toLocaleString()}
 
 Weekly Budget: ${Number(budgets.weeklyBudget).toLocaleString()}

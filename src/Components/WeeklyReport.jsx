@@ -119,12 +119,12 @@ export default function WeeklyReport({ members, member, setMembers }) {
                   <span className='font-bold block'>{day.day}</span>
                   <div className=''>
                     <span className='block font-semibold'>Risk</span>
-                    <span>Lives: </span><input type="text" value={day.riskLives} onChange={(e) => { updateRiskLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.riskApe} onChange={(e) => { updateRiskApe(day.day, e.target.value) }} />
+                    <span>Lives: </span><input type="text" value={day.riskLives} onChange={(e) => { updateRiskLives(day.day, e.target.value) }} /> <span>Premium: </span><input type="text" value={day.riskApe} onChange={(e) => { updateRiskApe(day.day, e.target.value) }} />
 
                   </div>
                   <div>
                     <span className='block font-semibold pt-2'>Savings</span>
-                    <span>Lives: </span><input type="text" value={day.savingsLives} onChange={(e) => { updateSavingsLives(day.day, e.target.value) }} /> <span>APE: </span><input type="text" value={day.savingsApe} onChange={(e) => { updateSavingsApe(day.day, e.target.value) }} />
+                    <span>Lives: </span><input type="text" value={day.savingsLives} onChange={(e) => { updateSavingsLives(day.day, e.target.value) }} /> <span>Premium: </span><input type="text" value={day.savingsApe} onChange={(e) => { updateSavingsApe(day.day, e.target.value) }} />
                   </div>
 
                 </div>

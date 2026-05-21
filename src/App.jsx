@@ -2877,6 +2877,7 @@ ${teamSettings.teamIcon}
             setMembers={setMembers}
             weekNo={weekNo}
             budgets={budgets}
+            teamSettings={teamSettings}
           />} />
 
         <Route path="/settings" element={
