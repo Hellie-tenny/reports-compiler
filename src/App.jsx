@@ -201,29 +201,21 @@ function App() {
     const weekAndDate = `${teamSettings.teamName} Daily Sales Report
 ${reportDate} Week ${weekNo}
 
-    `;
+`;
 
     const reports = members.map(
       (member) => {
         if (Number(member.riskLives) === 0 && Number(member.savingsLives) === 0) {
-          return `
-${member.id}. ${member.name}:0
-`
+          return `${member.id}.${member.name}:0`
         } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
-          return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}
-`
+          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}`
         } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
-          return `
-${member.id}. ${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}
-`
+          return `${member.id}.${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
         } else {
-          return `
-${member.id}. ${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}
-          `
+          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
         }
       }
-    ).join("");
+    ).join("\n");
 
     const summary = `
 
@@ -258,7 +250,7 @@ Regards.
 ${teamSettings.teamIcon}
     `;
 
-    const fullReport = weekAndDate + " " + reports + " " + summary;
+    const fullReport = weekAndDate + reports + " " + summary;
     setFinalReport(fullReport);
 
 

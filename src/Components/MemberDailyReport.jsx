@@ -10,6 +10,14 @@ function MemberDailyReport(props) {
                 className='float-right cursor-pointer'
                 onClick={() => removeMember(member.id, member.name)}
               /> */}
+            <select>
+                <option value="">Available</option>
+                <option value="">Sick Leave</option>
+                <option value="">Compassionate Leave</option>
+                <option value="">Martenity Leave</option>
+                <option value="">Partenity Leave</option>
+                <option value="">Anual Leave</option>
+            </select>
 
             <MdOutlineDeleteForever
                 className='float-right cursor-pointer text-2xl text-gray-600'

@@ -64,7 +64,7 @@ export default function WeeklySalesReport({ members, setMembers, weekNo, budgets
 
             0);
 
-        const totalSavingsApe = updatedMembers.reduce((acc, member) => {
+        const totalSavingsApe = updatedMembers .reduce((acc, member) => {
             return acc += Number(member.total.totalSavingsApe);
         },
 
