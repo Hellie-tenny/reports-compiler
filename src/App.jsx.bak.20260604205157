@@ -1,0 +1,2965 @@
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import { HiOutlineXMark } from "react-icons/hi2";
+import { IoIosSettings } from "react-icons/io";
+import lion from "./assets/lion.png";
+import './App.css'
+import Toast from './Components/Toast';
+import MemberDailyReport from './Components/MemberDailyReport';
+import Settings from './Components/Settings';
+import WeeklySalesReport from './WeeklySalesReport';
+
+function App() {
+
+  const navigate = useNavigate();
+
+  // states and variables
+  const [popup, setPopup] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("default");
+  const [toastCounter, setToastCounter] = useState(0);
+  const [newMember, setnewMember] = useState("");
+  const [members, setMembers] = useState([]);
+  const [finalReport, setFinalReport] = useState("");
+  const [reportDate, setReportDate] = useState("");
+  const [weekNo, setWeekNo] = useState("");
+  const [appData, setAppData] = useState({});
+  const [removeMemberDialog, setRemoveMemberDialog] = useState(false);
+  const [removeMemberSubject, setRemoveMemberSubject] = useState({});
+  const [showTeamCheckModal, setShowTeamCheckModal] = useState(false);
+  const [livesBudget, setLivesBudget] = useState(12);
+  // const [savingsApeBudget, setSavingsApeBudget] = useState(1430357);
+  // const [risknApeBudget, setRiskApeBudget] = useState(1430357);
+  const [totalApeBudget, setTotalApeBudget] = useState(2860714);
+  const [teamSettings, setTeamSettings] = useState({});
+  const [budgets, setBudgets] = useState({});
+  // const [sales, setSales] = useState([]);
+
+  const saveMembersTimeout = useRef(null);
+
+  useEffect(() => {
+    if (saveMembersTimeout.current) {
+      clearTimeout(saveMembersTimeout.current);
+    }
+    saveMembersTimeout.current = setTimeout(() => {
+      localStorage.setItem('members', JSON.stringify(members));
+    }, 250);
+
+    return () => {
+      if (saveMembersTimeout.current) {
+        clearTimeout(saveMembersTimeout.current);
+      }
+    };
+  }, [members]);
+
+  // functions and stuff
+  const showToast = useCallback((message, type = "default") => {
+    setToastMessage(message);
+    setToastType(type);
+    setToastCounter((prev) => prev + 1);
+  }, []);
+
+  const addMember = useCallback(() => {
+    setMembers((prev) => {
+      const newItem = {
+        id: prev.length + 1,
+        name: newMember,
+        riskLives: 0,
+        riskPremium: 0,
+        savingsLives: 0,
+        savingsPremium: 0,
+        activeStatus: "availabe",
+        "weekly": [
+          {
+            "day": "Monday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+          },
+          {
+            "day": "Tuesday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+          },
+          {
+            "day": "Wednesday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+          },
+          {
+            "day": "Thurday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+          },
+          {
+            "day": "Friday",
+            "riskLives": 0,
+            "riskApe": 0,
+            "savingsLives": 0,
+            "savingsApe": 0
+          }
+        ],
+        "total": {
+          "totalRiskLives": 0,
+          "totalRiskApe": 0,
+          "totalSavingsLives": 0,
+          "totalSavingsApe": 0
+        }
+      };
+      return [...prev, newItem];
+    });
+    showToast("New Member added!", "success");
+    setPopup(false);
+    setnewMember("");
+  }, [newMember, showToast]);
+
+  const updateMemberField = useCallback((id, field, value) => {
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === id ? { ...member, [field]: value } : member
+      )
+    );
+  }, []);
+
+  // settings function handlers
+  const editTeamName = (newName) => {
+    setTeamSettings({ ...teamSettings, teamName: newName });
+    const updatedTeamSettings = { ...teamSettings, teamName: newName };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamSettings));
+  }
+
+  const editTeamIcon = (newIcon) => {
+    setTeamSettings({ ...teamSettings, teamIcon: newIcon });
+    const updatedTeamSettings = { ...teamSettings, teamIcon: newIcon };
+    localStorage.setItem("teamSettings", JSON.stringify(updatedTeamSettings));
+  }
+
+  const editDailyBudget = (newDailyBudget) => {
+    setBudgets({ ...budgets, dailyBudget: newDailyBudget });
+    const updatedTeamBudgets = { ...budgets, dailyBudget: newDailyBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editDailyLivesBudget = (newDailyLivesBudget) => {
+    setBudgets({ ...budgets, dailyLivesBudget: newDailyLivesBudget });
+    const updatedTeamBudgets = { ...budgets, dailyLivesBudget: newDailyLivesBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyLivesBudget = (newWeeklyLivesBudget) => {
+    setBudgets({ ...budgets, weeklyLivesBudget: newWeeklyLivesBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyLivesBudget: newWeeklyLivesBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyRiskApeBudget = (newWeeklyRiskApeBudget) => {
+    setBudgets({ ...budgets, weeklyRiskApeBudget: newWeeklyRiskApeBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyRiskApeBudget: newWeeklyRiskApeBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklySavingsApeBudget = (newWeeklySavingsApeBudget) => {
+    setBudgets({ ...budgets, weeklySavingsApeBudget: newWeeklySavingsApeBudget });
+    const updatedTeamBudgets = { ...budgets, weeklySavingsApeBudget: newWeeklySavingsApeBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const editWeeklyBudget = (newWeeklyBudget) => {
+    setBudgets({ ...budgets, weeklyBudget: newWeeklyBudget });
+    const updatedTeamBudgets = { ...budgets, weeklyBudget: newWeeklyBudget };
+    localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
+  }
+
+  const changeActiveStatus = () => {
+
+  }
+
+  const updateRiskLives = useCallback((id, number) => updateMemberField(id, 'riskLives', number), [updateMemberField]);
+  const updateRiskPremium = useCallback((id, number) => updateMemberField(id, 'riskPremium', number), [updateMemberField]);
+  const updateSavingsLives = useCallback((id, number) => updateMemberField(id, 'savingsLives', number), [updateMemberField]);
+  const updateSavingsPremium = useCallback((id, number) => updateMemberField(id, 'savingsPremium', number), [updateMemberField]);
+
+  function compileReport() {
+
+    const totalRiskLives = members.reduce((sum, member) => sum + Number(member.riskLives), 0);
+    const totalSavingsLives = members.reduce((sum, member) => sum + Number(member.savingsLives), 0);
+    const totalLives = totalRiskLives + totalSavingsLives;
+
+    const totalSavingsApe = Number(members.reduce((sum, member) => sum + Number(member.savingsPremium), 0)) * 12;
+    const totalRiskApe = Number(members.reduce((sum, member) => sum + Number(member.riskPremium), 0)) * 12;
+    const totalApe = totalSavingsApe + totalRiskApe;
+    // const riskApeVariance = Number(totalRiskApe - risknApeBudget).toLocaleString();
+    const riskApeVariance = Number(totalRiskApe - budgets.dailyRiskBudget).toLocaleString();
+    // const totalLivesVariance = totalLives - livesBudget;
+    const totalLivesVariance = totalLives - budgets.dailyLivesBudget;
+    const totalSavingsApeVariance = totalSavingsApe - budgets.dailySavingsBudget;
+    const totalApeVariance = totalApe - budgets.dailyBudget;
+    // 2,860,714
+
+    const weekAndDate = `${teamSettings.teamName} Daily Sales Report
+${reportDate} Week ${weekNo}
+
+ `;
+
+    const reports = members.map(
+      (member) => {
+        if (Number(member.riskLives) === 0 && Number(member.savingsLives) === 0) {
+          return `${member.id}.${member.name}:0`
+        } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
+          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}`
+        } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
+          return `${member.id}.${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
+        } else {
+          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
+        }
+      }
+    ).join("\n");
+
+    const summary = `
+
+*LIVES* 
+ 
+Total lives budget ${budgets.dailyLivesBudget}
+Total savings ${totalSavingsLives}
+Total Risk ${totalRiskLives}
+Total lives ${totalLives}
+
+Total lives variance : ${totalLivesVariance > 0 ? "+" : ""}${totalLivesVariance}
+
+*RISK*
+
+Daily risk Budget ${Number(budgets.dailyRiskBudget).toLocaleString()}.00
+Total Risk : ${Number(totalRiskApe).toLocaleString()}
+Variance :  ${riskApeVariance > 0 ? "+" : ""}${riskApeVariance}
+
+*SAVINGS*
+
+Daily SAVINGS budget ${Number(budgets.dailySavingsBudget).toLocaleString()}.00
+Total APE : ${Number(totalSavingsApe).toLocaleString()}
+Variance: ${totalSavingsApeVariance > 0 ? "+" : ""}${Number(totalSavingsApeVariance).toLocaleString()}
+
+*Daily budget*
+
+Daily APE budget ${Number(budgets.dailyBudget).toLocaleString()}.00
+Total APE : ${totalApe.toLocaleString()}
+APE variance: ${totalApeVariance > 0 ? "+" : ""}${Number(totalApeVariance).toLocaleString()}
+
+Regards.
+${teamSettings.teamIcon}
+    `;
+
+    const fullReport = weekAndDate + reports + " " + summary;
+    setFinalReport(fullReport);
+
+
+    console.log(fullReport);
+  }
+
+  function updateWeekNo(number) {
+    setWeekNo(number);
+    const updatedAppData = { ...appData, weekNo: number };
+    localStorage.setItem("appData", JSON.stringify(updatedAppData))
+  }
+
+  // copyting to clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(finalReport)
+      .then(() => alert('Copied to clipboard!'))
+      .catch((err) => console.error('Failed to copy:', err));
+
+    setFinalReport("");
+  };
+
+  function removeMember(id, name) {
+    setRemoveMemberDialog(true);
+    setRemoveMemberSubject({ id: id, name: name });
+  }
+
+  function comfirmRemoveMember() {
+    const updatedMembers = members.filter((member) => member.id !== removeMemberSubject.id).map((member, index) => (
+      {
+        ...member,
+        id: index + 1
+      }
+    ));
+    setMembers(updatedMembers);
+    setRemoveMemberDialog(false);
+    showToast("Member removed!");
+  }
+
+  function getWeekNumber(date = new Date()) {
+    const startOfYear = new Date(date.getFullYear(), 0, 1);
+    const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+    return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+  }
+
+  function resetSales(id) {
+    const updatedMembers = members.map(member =>
+      member.id === id ? { ...member, savingsLives: 0, savingsPremium: 0, riskLives: 0, riskPremium: 0 } : member
+    );
+    setMembers(updatedMembers);
+    showToast("Sales reset!");
+  }
+
+  // useEffect to initialize the app
+  useEffect(() => {
+    const storedMembers = localStorage.getItem('members');
+    const storedAppData = localStorage.getItem('appData');
+    const storedTeamSettings = localStorage.getItem('teamSettings');
+    const storedBudgets = localStorage.getItem('budgets');
+
+    if (storedMembers) {
+      try {
+        setMembers(JSON.parse(storedMembers));
+      } catch (e) {
+        console.error('Failed to parse members from localStorage:', e);
+      }
+    } else {
+      const initialMembers = [
+        {
+          "id": 1,
+          "name": "Kingsley",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 2,
+          "name": "Cecilia",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 3,
+          "name": "Christopher",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 4,
+          "name": "Lisa",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 5,
+          "name": "Chifundo",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 6,
+          "name": "Rachael",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 7,
+          "name": "Balumbechi",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 8,
+          "name": "Clive",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 9,
+          "name": "Precious",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 10,
+          "name": "Edna",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 11,
+          "name": "Beatrice",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 12,
+          "name": "Lucy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 13,
+          "name": "Katrina",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 14,
+          "name": "Tadala",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 15,
+          "name": "Joseph",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        }
+      ]
+      setMembers(initialMembers);
+      localStorage.setItem("members", JSON.stringify(initialMembers));
+    }
+
+    if (storedAppData) {
+      try {
+        setAppData(JSON.parse(storedAppData));
+        const parsed = JSON.parse(storedAppData);
+        setWeekNo(parsed.weekNo);
+      } catch (e) {
+        console.error('Failed to parse members from localStorage:', e);
+      }
+    }
+
+    if (storedTeamSettings) {
+      try {
+        setTeamSettings(JSON.parse(storedTeamSettings));
+      } catch (e) {
+        console.error('Failed to Set Team Settings:', e)
+      }
+    } else {
+      setTeamSettings({
+        'teamName': 'Lion',
+        'teamIcon': '🦁'
+      })
+    }
+
+    if (storedBudgets) {
+      try {
+        setBudgets(JSON.parse(storedBudgets));
+      } catch (e) {
+        console.log('Failed to set Budgets: ', e)
+      }
+
+    } else {
+      // setBudgets({
+      //   'dailyBudget': 2860714,
+      //   'dailyRiskBudget': 1430357,
+      //   'dailySavingsBudget': 1430357,
+      //   'dailySavingsBudget' : 1430357,
+      //   'dailyLivesBudget' : 12,
+      //   'weeklyBudget' : 10987500
+      // });
+      setShowTeamCheckModal(true);
+    }
+
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(now.getDate()).padStart(2, '0');
+    const year = now.getFullYear();
+
+    const today = `${day}/${month}/${year}`;
+    setReportDate(today)
+    const currentWeek = getWeekNumber();
+    setWeekNo(currentWeek);
+
+  }, []);
+
+  const initializeTeam = (team) => {
+
+    if (team === "lion") {
+
+      const initialBudgets = {
+        'dailyBudget': 2860714,
+        'dailyRiskBudget': 1430357,
+        'dailySavingsBudget': 1430357,
+        'dailyLivesBudget': 12,
+        'weeklyBudget': 10987500,
+        'weeklyLivesBudget': 60,
+        'weeklyRiskApeBudget': 4944375,
+        'weeklySavingsApeBudget': 4944375
+      };
+
+      const initialTeamSettings = {
+        'teamName': 'Lion',
+        'teamIcon': '🦁'
+      }
+
+      setTeamSettings(initialTeamSettings);
+      localStorage.setItem('teamSettings', JSON.stringify(initialTeamSettings));
+
+      setBudgets(initialBudgets);
+      localStorage.setItem('budgets', JSON.stringify(initialBudgets));
+
+      const initialMembers = [
+        {
+          "id": 1,
+          "name": "Kingsley",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 2,
+          "name": "Cecilia",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 3,
+          "name": "Christopher",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 4,
+          "name": "Lisa",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 5,
+          "name": "Chifundo",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 6,
+          "name": "Rachael",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 7,
+          "name": "Balumbechi",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 8,
+          "name": "Clive",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 9,
+          "name": "Precious",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 10,
+          "name": "Edna",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 11,
+          "name": "Beatrice",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 12,
+          "name": "Lucy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 13,
+          "name": "Katrina",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 14,
+          "name": "Tadala",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 15,
+          "name": "Joseph",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        }
+      ]
+      setMembers(initialMembers);
+      localStorage.setItem("members", JSON.stringify(initialMembers));
+      setShowTeamCheckModal(false);
+
+    } else if (team === "eagle") {
+      const initialBudgets = {
+        'dailyBudget': 4203125,
+        'dailyRiskBudget': 2101573,
+        'dailySavingsBudget': 2101573,
+        'dailyLivesBudget': 16,
+        'weeklyBudget': 10987500,
+        'weeklyLivesBudget': 60,
+        'weeklyRiskApeBudget': 4944375,
+        'weeklySavingsApeBudget': 4944375
+      };
+
+      const initialTeamSettings = {
+        'teamName': 'Eagle',
+        'teamIcon': '🦅'
+      }
+
+      setTeamSettings(initialTeamSettings);
+      localStorage.setItem('teamSettings', JSON.stringify(initialTeamSettings));
+
+      setBudgets(initialBudgets);
+      localStorage.setItem('budgets', JSON.stringify(initialBudgets));
+
+      const initialMembers = [
+        {
+          id: 1,
+          name: "Kettie",
+          riskLives: 0,
+          riskPremium: 0,
+          savingsLives: 0,
+          savingsPremium: 0,
+          weekly: [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 2,
+          "name": "Eddah",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 3,
+          "name": "Deborah",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 4,
+          "name": "Charity",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 5,
+          "name": "Dorcas",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 6,
+          "name": "Colliness",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 7,
+          "name": "Loveness",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 8,
+          "name": "Samuel",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 9,
+          "name": "Kingsley",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 10,
+          "name": "Tadala",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 11,
+          "name": "Mtisunge",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 12,
+          "name": "Stella",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 13,
+          "name": "Akuzike",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 14,
+          "name": "Hannah",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 15,
+          "name": "Dorothy",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        },
+        {
+          "id": 16,
+          "name": "Ashraf",
+          "riskLives": "0",
+          "riskPremium": "0",
+          "savingsLives": "0",
+          "savingsPremium": "0",
+          "weekly": [
+            {
+              "day": "Monday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Tuesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Wednesday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Thurday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            },
+            {
+              "day": "Friday",
+              "riskLives": 0,
+              "riskApe": 0,
+              "savingsLives": 0,
+              "savingsApe": 0
+            }
+          ],
+          "total": {
+            "totalRiskLives": 0,
+            "totalRiskApe": 0,
+            "totalSavingsLives": 0,
+            "totalSavingsApe": 0
+          }
+        }
+      ]
+      setMembers(initialMembers);
+      localStorage.setItem("members", JSON.stringify(initialMembers));
+      setShowTeamCheckModal(false);
+
+    }
+  }
+
+
+  return (
+    <div className='bg-gray-200 h-[100vh] overflow-y-auto w-screen'>
+
+      <Toast toastMessage={toastMessage} toastType={toastType} toastCounter={toastCounter} />
+
+      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${showTeamCheckModal ? 'flex' : 'hidden'} justify-center items-center px-20 z-50`}>
+
+        <div className="bg-white w-full lg:w-[40%] p-4 h-auto">
+
+          <div className="flex justify-end w-full pb-5">
+            <span className='inline-flex cursor-pointer items-center justify-center px-2 py-1 rounded-full text-sm' onClick={() => setShowTeamCheckModal(false)}>
+              x
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <span className='block font-bold'>Please Confirm your Team</span>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className='inline-flex box-border items-center justify-center px-4 py-2 bg-blue-200 rounded-lg cursor-pointer' onClick={() => initializeTeam("lion")}>Team Lion</span>
+              <span className='inline-flex box-border items-center justify-center px-4 py-2 bg-blue-200 rounded-lg cursor-pointer' onClick={() => initializeTeam("eagle")}>Team Eagle</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${popup ? `flex` : 'hidden'} justify-center items-center px-20`}>
+
+        <div className="bg-white w-full lg:w-[40%] p-4 h-auto">
+
+          <div className="flex justify-end w-full pb-5">
+            <span className='cursor-pointer' onClick={() => setPopup(!popup)}>
+              x
+            </span>
+          </div>
+
+          <input type="text" placeholder='Member name...' className='w-[90%] md:block' value={newMember} onChange={(e) => setnewMember(e.target.value)} />
+          <button className='bg-black text-white p-1 rounded-sm hover:cursor-pointer lg:w-[10%]'
+            onClick={() => addMember()}>
+            Add
+          </button>
+
+        </div>
+
+
+      </div>
+
+
+      <div className={`absolute bg-[rgba(0,0,0,0.5)] w-full h-full ${removeMemberDialog ? `flex` : 'hidden'} justify-center items-center`}>
+
+        <div className="bg-white w-[40%] p-4 h-auto">
+          <HiOutlineXMark className='float-right cursor-pointer' onClick={() => setRemoveMemberDialog(false)} />
+          <div className='my-4'>
+            <span>
+              Are you sure you want to remove {removeMemberSubject.name}?
+            </span>
+          </div>
+
+          <div>
+            <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={comfirmRemoveMember}>
+              Comfirm
+            </button>
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <Routes>
+        <Route path="/weekly-sales-report" element={
+          <WeeklySalesReport
+            members={members}
+            setMembers={setMembers}
+            weekNo={weekNo}
+            budgets={budgets}
+            teamSettings={teamSettings}
+          />} />
+
+        <Route path="/settings" element={
+          <Settings
+            editTeamName={editTeamName}
+            editDailyBudget={editDailyBudget}
+            editDailyLivesBudget={editDailyLivesBudget}
+            editWeeklyBudget={editWeeklyBudget}
+            editWeeklyLivesBudget={editWeeklyLivesBudget}
+            editWeeklyRiskApeBudget={editWeeklyRiskApeBudget}
+            editWeeklySavingsApeBudget={editWeeklySavingsApeBudget}
+            editTeamIcon={editTeamIcon}
+            teamSettings={teamSettings}
+            budgets={budgets} />} />
+        <Route path="/" element={
+          <>
+            <div className='bg-black w-full p-4 flex justify-between'>
+              <h2 className='text-white'>
+                <img src={lion} alt="Team Lion Logo" className='w-[5%] inline rounded-md mr-2' />
+                Daily Sales Reporting Tool
+              </h2>
+              <div className='flex items-center'>
+                <Link to="/weekly-sales-report" className='text-white hover:text-gray-300 mr-4'>Weekly Report</Link>
+                <IoIosSettings className='size-10 text-white cursor-pointer' onClick={() => navigate('/settings')} />
+              </div>
+            </div>
+
+            <div className="members w-full">
+
+              <div className="w-full p-[2rem]">
+                <input type="text" value={reportDate} readOnly />
+                Week NO. <input type="text" className='w-[10%]' placeholder='Week No.' value={weekNo} onChange={(e) => updateWeekNo(e.target.value)} />
+                <button className="justify-end float-right bg-black text-white p-1 rounded-sm cursor-pointer" onClick={() => setPopup(!popup)}>
+                  Add Member
+                </button>
+              </div>
+
+              <div className='p-[2rem]'>
+                {teamSettings.teamName} <button className='bg-black text-white p-1 rounded-sm cursor-pointer' onClick={() => { setShowTeamCheckModal(true) }}>Change Team</button>
+              </div>
+
+            </div>
+
+
+            <div className="report p-[2rem] lg:w-[70%] mx-auto h-[100%]">
+              {
+                members.map((member) => (
+                  <MemberDailyReport
+                    key={member.id}
+                    member={member}
+                    updateRiskLives={updateRiskLives}
+                    updateRiskPremium={updateRiskPremium}
+                    updateSavingsLives={updateSavingsLives}
+                    updateSavingsPremium={updateSavingsPremium}
+                    removeMember={removeMember}
+                    resetSales={resetSales}
+                  />
+                ))
+              }
+
+              <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto'
+                onClick={compileReport}
+              >
+                Compile
+              </button>
+
+              <div className="w-full">
+                <pre>
+                  {finalReport}
+                </pre>
+
+                {
+                  finalReport === "" ? "" : <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-auto' onClick={copyToClipboard}>
+                    Copy
+                  </button>
+                }
+
+              </div>
+
+            </div>
+          </>
+        } />
+      </Routes>
+    </div>
+  )
+}
+
+export default App;

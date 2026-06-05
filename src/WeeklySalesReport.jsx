@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import WeeklyReport from './Components/WeeklyReport';
 import { useState } from 'react';
 
-export default function WeeklySalesReport({ members, setMembers, weekNo, budgets, teamSettings}) {
+export default function WeeklySalesReport({ members, setMembers, weekNo, budgets, teamSettings, resetWeeklySales}) {
 
     const [finalWeeklyReport, setFinalWeeklyReport] = useState("");
 
@@ -138,7 +138,7 @@ Regards...
                     </Link>
                 </h2>
             </div>
-
+            <button className='bg-black text-white p-1 rounded-sm cursor-pointer mx-5 my-2 right-0' onClick={resetWeeklySales}>Reset Weekly Sales</button>
             <div className='p-[2rem]'>
                 {
                     members.map((member) =>

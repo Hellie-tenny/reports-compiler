@@ -68,48 +68,49 @@ function App() {
         riskPremium: 0,
         savingsLives: 0,
         savingsPremium: 0,
-        "weekly": [
+        activeStatus: "available",
+        weekly: [
           {
-            "day": "Monday",
-            "riskLives": 0,
-            "riskApe": 0,
-            "savingsLives": 0,
-            "savingsApe": 0
+            day: "Monday",
+            riskLives: 0,
+            riskApe: 0,
+            savingsLives: 0,
+            savingsApe: 0
           },
           {
-            "day": "Tuesday",
-            "riskLives": 0,
-            "riskApe": 0,
-            "savingsLives": 0,
-            "savingsApe": 0
+            day: "Tuesday",
+            riskLives: 0,
+            riskApe: 0,
+            savingsLives: 0,
+            savingsApe: 0
           },
           {
-            "day": "Wednesday",
-            "riskLives": 0,
-            "riskApe": 0,
-            "savingsLives": 0,
-            "savingsApe": 0
+            day: "Wednesday",
+            riskLives: 0,
+            riskApe: 0,
+            savingsLives: 0,
+            savingsApe: 0
           },
           {
-            "day": "Thurday",
-            "riskLives": 0,
-            "riskApe": 0,
-            "savingsLives": 0,
-            "savingsApe": 0
+            day: "Thurday",
+            riskLives: 0,
+            riskApe: 0,
+            savingsLives: 0,
+            savingsApe: 0
           },
           {
-            "day": "Friday",
-            "riskLives": 0,
-            "riskApe": 0,
-            "savingsLives": 0,
-            "savingsApe": 0
+            day: "Friday",
+            riskLives: 0,
+            riskApe: 0,
+            savingsLives: 0,
+            savingsApe: 0
           }
         ],
-        "total": {
-          "totalRiskLives": 0,
-          "totalRiskApe": 0,
-          "totalSavingsLives": 0,
-          "totalSavingsApe": 0
+        total: {
+          totalRiskLives: 0,
+          totalRiskApe: 0,
+          totalSavingsLives: 0,
+          totalSavingsApe: 0
         }
       };
       return [...prev, newItem];
@@ -176,6 +177,27 @@ function App() {
     localStorage.setItem("budgets", JSON.stringify(updatedTeamBudgets));
   }
 
+  /////////////////////////////////////////////////////////////////
+
+  const changeActiveStatus = useCallback((id, status) => {
+    if (status !== "available") {
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.id === id ? {
+            ...member,
+            activeStatus: status,
+            riskLives: 0,
+            riskPremium: 0,
+            savingsLives: 0,
+            savingsPremium: 0
+          } : member
+        )
+      );
+    } else {
+      updateMemberField(id, 'activeStatus', status);
+    }
+  }, [updateMemberField]);
+
   const updateRiskLives = useCallback((id, number) => updateMemberField(id, 'riskLives', number), [updateMemberField]);
   const updateRiskPremium = useCallback((id, number) => updateMemberField(id, 'riskPremium', number), [updateMemberField]);
   const updateSavingsLives = useCallback((id, number) => updateMemberField(id, 'savingsLives', number), [updateMemberField]);
@@ -205,15 +227,34 @@ ${reportDate} Week ${weekNo}
 
     const reports = members.map(
       (member) => {
-        if (Number(member.riskLives) === 0 && Number(member.savingsLives) === 0) {
-          return `${member.id}.${member.name}:0`
-        } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
-          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}`
-        } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
-          return `${member.id}.${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
-        } else {
-          return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
+
+        if (member.activeStatus === "available") {
+
+          if (Number(member.riskLives) === 0 && Number(member.savingsLives) === 0) {
+            return `${member.id}.${member.name}:0`
+          } else if (Number(member.riskLives) > 0 && Number(member.savingsLives) === 0) {
+            return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}`
+          } else if (Number(member.savingsLives) > 0 && Number(member.riskLives) === 0) {
+            return `${member.id}.${member.name}: ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
+          } else {
+            return `${member.id}.${member.name}: ${member.riskLives}r. ${Number(member.riskPremium).toLocaleString()}, ${member.savingsLives}s. ${Number(member.savingsPremium).toLocaleString()}`
+          }
+
+        } else if (member.activeStatus === "sl") {
+          return `${member.id}.${member.name}: SL`;
+        } else if (member.activeStatus === "cl") {
+          return `${member.id}.${member.name}: CL`;
+        } else if (member.activeStatus === "ml") {
+          return `${member.id}.${member.name}: ML`;
+        } else if (member.activeStatus === "pl") {
+          return `${member.id}.${member.name}: PL`;
+        } else if (member.activeStatus === "al") {
+          return `${member.id}.${member.name}: AL`;
+        } else if (member.activeStatus === "stl") {
+          return `${member.id}.${member.name}: SL`;
         }
+
+
       }
     ).join("\n");
 
@@ -303,6 +344,21 @@ ${teamSettings.teamIcon}
     showToast("Sales reset!");
   }
 
+  function resetWeeklySales() {
+    const updatedMembers = members.map(member => ({
+      ...member,
+      weekly: member.weekly.map(day => ({
+        ...day,
+        riskLives: 0,
+        riskApe: 0,
+        savingsLives: 0,
+        savingsApe: 0
+      }))
+    }));
+    setMembers(updatedMembers);
+    showToast("Weekly sales reset!", "success");
+  }
+
   // useEffect to initialize the app
   useEffect(() => {
     const storedMembers = localStorage.getItem('members');
@@ -312,775 +368,796 @@ ${teamSettings.teamIcon}
 
     if (storedMembers) {
       try {
-        setMembers(JSON.parse(storedMembers));
+        const parsed = JSON.parse(storedMembers);
+        const normalized = parsed.map(member => ({
+          ...member,
+          activeStatus: member.activeStatus || "available"  // default if missing
+        }));
+        setMembers(normalized);
+        // setMembers(JSON.parse(storedMembers));
       } catch (e) {
         console.error('Failed to parse members from localStorage:', e);
       }
     } else {
       const initialMembers = [
         {
-          "id": 1,
-          "name": "Kingsley",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 1,
+          name: "Kingsley",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 2,
-          "name": "Cecilia",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 2,
+          name: "Cecilia",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 3,
-          "name": "Christopher",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 3,
+          name: "Christopher",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 4,
-          "name": "Lisa",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 4,
+          name: "Lisa",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 5,
-          "name": "Chifundo",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 5,
+          name: "Chifundo",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 6,
-          "name": "Rachael",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 6,
+          name: "Rachael",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 7,
-          "name": "Balumbechi",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 7,
+          name: "Balumbechi",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 8,
-          "name": "Clive",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 8,
+          name: "Clive",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 9,
-          "name": "Precious",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 9,
+          name: "Precious",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 10,
-          "name": "Edna",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 10,
+          name: "Edna",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 11,
-          "name": "Beatrice",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 11,
+          name: "Beatrice",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 12,
-          "name": "Lucy",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 12,
+          name: "Lucy",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 13,
-          "name": "Katrina",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 13,
+          name: "Katrina",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 14,
-          "name": "Tadala",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 14,
+          name: "Tadala",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 15,
-          "name": "Joseph",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 15,
+          name: "Joseph",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         }
       ]
@@ -1170,771 +1247,787 @@ ${teamSettings.teamIcon}
 
       const initialMembers = [
         {
-          "id": 1,
-          "name": "Kingsley",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 1,
+          name: "Kingsley",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 2,
-          "name": "Cecilia",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 2,
+          name: "Cecilia",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 3,
-          "name": "Christopher",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 3,
+          name: "Christopher",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 4,
-          "name": "Lisa",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 4,
+          name: "Lisa",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 5,
-          "name": "Chifundo",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 5,
+          name: "Chifundo",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 6,
-          "name": "Rachael",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 6,
+          name: "Rachael",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 7,
-          "name": "Balumbechi",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 7,
+          name: "Balumbechi",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 8,
-          "name": "Clive",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 8,
+          name: "Clive",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 9,
-          "name": "Precious",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 9,
+          name: "Precious",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 10,
-          "name": "Edna",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 10,
+          name: "Edna",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 11,
-          "name": "Beatrice",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 11,
+          name: "Beatrice",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 12,
-          "name": "Lucy",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 12,
+          name: "Lucy",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 13,
-          "name": "Katrina",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 13,
+          name: "Katrina",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 14,
-          "name": "Tadala",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 14,
+          name: "Tadala",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 15,
-          "name": "Joseph",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 15,
+          name: "Joseph",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         }
       ]
+
       setMembers(initialMembers);
       localStorage.setItem("members", JSON.stringify(initialMembers));
       setShowTeamCheckModal(false);
@@ -1964,819 +2057,835 @@ ${teamSettings.teamIcon}
 
       const initialMembers = [
         {
-          "id": 1,
-          "name": "Kettie",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 1,
+          name: "Kettie",
+          riskLives: 0,
+          riskPremium: 0,
+          savingsLives: 0,
+          savingsPremium: 0,
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 2,
-          "name": "Eddah",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 2,
+          name: "Eddah",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 3,
-          "name": "Deborah",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 3,
+          name: "Deborah",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 4,
-          "name": "Charity",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 4,
+          name: "Charity",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 5,
-          "name": "Dorcas",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 5,
+          name: "Dorcas",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 6,
-          "name": "Colliness",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 6,
+          name: "Colliness",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 7,
-          "name": "Loveness",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 7,
+          name: "Loveness",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 8,
-          "name": "Samuel",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 8,
+          name: "Samuel",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 9,
-          "name": "Kingsley",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 9,
+          name: "Kingsley",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 10,
-          "name": "Tadala",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 10,
+          name: "Tadala",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 11,
-          "name": "Mtisunge",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 11,
+          name: "Mtisunge",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 12,
-          "name": "Stella",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 12,
+          name: "Stella",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 13,
-          "name": "Akuzike",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 13,
+          name: "Akuzike",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 14,
-          "name": "Hannah",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 14,
+          name: "Hannah",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 15,
-          "name": "Dorothy",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 15,
+          name: "Dorothy",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         },
         {
-          "id": 16,
-          "name": "Ashraf",
-          "riskLives": "0",
-          "riskPremium": "0",
-          "savingsLives": "0",
-          "savingsPremium": "0",
-          "weekly": [
+          id: 16,
+          name: "Ashraf",
+          riskLives: "0",
+          riskPremium: "0",
+          savingsLives: "0",
+          savingsPremium: "0",
+          activeStatus: "available",
+          weekly: [
             {
-              "day": "Monday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Monday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Tuesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Tuesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Wednesday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Wednesday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Thurday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Thurday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             },
             {
-              "day": "Friday",
-              "riskLives": 0,
-              "riskApe": 0,
-              "savingsLives": 0,
-              "savingsApe": 0
+              day: "Friday",
+              riskLives: 0,
+              riskApe: 0,
+              savingsLives: 0,
+              savingsApe: 0
             }
           ],
-          "total": {
-            "totalRiskLives": 0,
-            "totalRiskApe": 0,
-            "totalSavingsLives": 0,
-            "totalSavingsApe": 0
+          total: {
+            totalRiskLives: 0,
+            totalRiskApe: 0,
+            totalSavingsLives: 0,
+            totalSavingsApe: 0
           }
         }
       ]
@@ -2870,6 +2979,7 @@ ${teamSettings.teamIcon}
             weekNo={weekNo}
             budgets={budgets}
             teamSettings={teamSettings}
+            resetWeeklySales={resetWeeklySales}
           />} />
 
         <Route path="/settings" element={
@@ -2925,6 +3035,7 @@ ${teamSettings.teamIcon}
                     updateSavingsLives={updateSavingsLives}
                     updateSavingsPremium={updateSavingsPremium}
                     removeMember={removeMember}
+                    changeActiveStatus={changeActiveStatus}
                     resetSales={resetSales}
                   />
                 ))
