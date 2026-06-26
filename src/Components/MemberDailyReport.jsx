@@ -41,8 +41,8 @@ function MemberDailyReport(props) {
                     </div>
 
                     <div className='w-full grid grid-cols-4 items-center'>
-                        <span>Lives: </span><input type="text" className={`bg-white m-1 p-1 w-[40%] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Lives' value={props.member.riskLives} onChange={(e) => props.updateRiskLives(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
-                        <span>Premium: </span><input type="text" className={`bg-white m-1 p-1 w-[40%] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Premium' value={props.member.riskPremium} onChange={(e) => props.updateRiskPremium(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
+                        <span>Lives: </span><input type="text" className={`bg-white m-1 p-1 w-[full] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Lives' value={props.member.riskLives} onChange={(e) => props.updateRiskLives(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
+                        <span>Premium: </span><input type="text" className={`bg-white m-1 p-1 w-[full] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Premium' value={props.member.riskPremium} onChange={(e) => props.updateRiskPremium(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
                     </div>
 
 
@@ -54,8 +54,8 @@ function MemberDailyReport(props) {
                     </div>
 
                     <div className="w-full grid grid-cols-4 items-center">
-                        <span>Lives: </span><input type="text" className={`bg-white m-1 p-1 w-[40%] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Lives' value={props.member.savingsLives} onChange={(e) => props.updateSavingsLives(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
-                        <span>Premium: </span><input type="text" className={`bg-white m-1 p-1 w-[40%] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Premium' value={props.member.savingsPremium} onChange={(e) => props.updateSavingsPremium(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
+                        <span>Lives: </span><input type="text" className={`bg-white m-1 p-1 w-[w-full] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Lives' value={props.member.savingsLives} onChange={(e) => props.updateSavingsLives(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
+                        <span>Premium: </span><input type="text" className={`bg-white m-1 p-1 w-[w-full] disabled:opacity-50 disabled:cursor-not-allowed`} placeholder='Premium' value={props.member.savingsPremium} onChange={(e) => props.updateSavingsPremium(props.member.id, e.target.value)} disabled={props.member.activeStatus !== "available"} />
                     </div>
 
 
