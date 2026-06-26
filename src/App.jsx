@@ -294,7 +294,31 @@ ${teamSettings.teamIcon}
     const fullReport = weekAndDate + reports + " " + summary;
     setFinalReport(fullReport);
 
+    // ssave to weekly report
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const todayName = dayNames[new Date().getDay()];
 
+    const updatedForWeekly = members.map((member) => ({
+      ...member,
+
+      weekly: member.weekly.map((day) => {
+        if(day.day === todayName) {
+          return {
+            ...day,
+            riskLives : member.activeStatus !== "available" ? 0 : Number(member.riskLives),
+            riskApe : member.activeStatus !== "available" ? 0 : Number(member.riskPremium),
+            savingsLives : member.activeStatus !== "available" ? 0 : Number(member.savingsLives),
+            savingsApe : member.activeStatus !== "available" ? 0 : Number(member.savingsPremium),
+          }
+        }
+
+        return day;
+      })
+
+    }))
+
+    setMembers(updatedForWeekly);
+    
     console.log(fullReport);
   }
 
@@ -411,7 +435,7 @@ ${teamSettings.teamIcon}
               savingsApe: 0
             },
             {
-              day: "Thurday",
+              day: "Thursday",
               riskLives: 0,
               riskApe: 0,
               savingsLives: 0,
